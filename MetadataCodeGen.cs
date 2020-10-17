@@ -20,9 +20,12 @@ public class MetadataCodeGen
         for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
         {
             string layerName = layers[layerIndex];
-            writter.WriteLine("    public const string " + layerName.Replace(' ', '_').ToUpper() + " = \"" + layerName + "\";");
+            string formattedName = layerName.Replace(' ', '_').ToUpper();
+            writter.WriteLine("    public const string " + formattedName + " = \"" + layerName + "\";");
             int layerInt = LayerMask.NameToLayer(layerName);
-            writter.WriteLine("    public const int " + layers[layerIndex].Replace(' ', '_').ToUpper() + "_INDEX = " + layerInt.ToString() + ";");
+            writter.WriteLine("    public const int " + formattedName + "_INDEX = " + layerInt.ToString() + ";");
+            int layerMask = LayerMask.GetMask(layerName);
+            writter.WriteLine("    public const int " + formattedName + "_MASK = " + layerMask.ToString() + ";");
         }
         writter.WriteLine("}");
         writter.Close();
