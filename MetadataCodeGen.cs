@@ -52,10 +52,10 @@ public class MetadataCodeGen
         AssetDatabase.Refresh();
     }
 
-    [MenuItem("Batbelt/Codegen/Generate Animator Parameter Files")]
+    [MenuItem("Batbelt/Codegen/Generate Animator Files")]
     public static void GenerateAnimatorParameterFiles()
     {
-        string filePath = "Assets/CodeGen/AnimatorParameters/";
+        string filePath = "Assets/CodeGen/Animator/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
 
         string[] animatorsGUIDs = AssetDatabase.FindAssets("t:AnimatorController");
@@ -64,13 +64,26 @@ public class MetadataCodeGen
             string path = AssetDatabase.GUIDToAssetPath(animatorsGUIDs[animatorIndex]);
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
 
-            StreamWriter writter = new StreamWriter(filePath + animatorController.name + "Parameters.cs");
+            StreamWriter writter = new StreamWriter(filePath + animatorController.name + "Animator.cs");
             writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
-            writter.WriteLine("public class " + animatorController.name + "Parameters { ");
+            writter.WriteLine("public class " + animatorController.name + "Animator { ");
             UnityEngine.AnimatorControllerParameter[] parameters = animatorController.parameters;
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
                 writter.WriteLine("    public const string " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
+            }
+            UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
+            for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
+            {
+                string prefix = layers[layerIndex].name.Replace(" ", "_").ToUpper();
+                UnityEditor.Animations.ChildAnimatorState[] states = layers[layerIndex].stateMachine.states;
+                for(int stateIndex = 0; stateIndex < states.Length; ++stateIndex)
+                {
+                    UnityEditor.Animations.AnimatorState currentState = states[stateIndex].state;
+                    string keyName = currentState.name.Replace(' ', '_').ToUpper();
+                    writter.WriteLine("    public const string " + keyName + " = \"" + currentState.name + "\";");
+                    writter.WriteLine("    public const int " + keyName + "_HASH = " + currentState.nameHash + ";");
+                }
             }
             writter.WriteLine("}");
             writter.Close();
