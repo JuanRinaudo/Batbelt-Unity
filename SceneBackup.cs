@@ -34,7 +34,7 @@ public class SceneBackup
     
     static void Update()
     {
-        if(EditorApplication.timeSinceStartup - lastSaveTimestamp > saveTime)
+        if(!EditorApplication.isPlaying && EditorApplication.timeSinceStartup - lastSaveTimestamp > saveTime)
         {
             int sceneCount = EditorSceneManager.sceneCount;
             for(int i = 0; i < sceneCount; ++i)
