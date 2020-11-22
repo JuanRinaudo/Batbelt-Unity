@@ -18,13 +18,6 @@ public class SceneBackup
 
     static SceneBackup()
     {        
-        //bool updateAdded = false;
-        //Delegate[] delegates = EditorApplication.update.GetInvocationList();
-        //for(int i = 0; i < delegates.Length; ++i)
-        //{
-        //    delegates
-        //}
-        
         if(!UpdateAdded)
         {
             EditorApplication.update += Update;
