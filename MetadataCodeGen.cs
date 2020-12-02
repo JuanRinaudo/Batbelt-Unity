@@ -92,6 +92,11 @@ public class MetadataCodeGen
         AssetDatabase.Refresh();
     }
 
+    private static string NormalizeKey(string key)
+    {
+        return key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
+    }
+
     [MenuItem("Batbelt/Codegen/Generate Resources File")]
     public static void GenerateResourcesFile()
     {
@@ -138,7 +143,7 @@ public class MetadataCodeGen
                     if (attributes.HasFlag(FileAttributes.Directory))
                     {
                         // #TODO (Juan): If this is slow, check for a faster/better way to do this
-                        string key = resourcePath.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').ToUpper();
+                        string key = NormalizeKey(resourcePath);
                         string value = resourcePath.Replace('\\', '/');
 
                         folderStack.Push(entryFullPath);
@@ -152,7 +157,7 @@ public class MetadataCodeGen
 
                         string value = resourcePath.Substring(0, extensionIndex).Replace('\\', '/');
                         // #TODO (Juan): If this is slow, check for a faster/better way to do this
-                        string key = value.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('.', '_').ToUpper();
+                        string key = NormalizeKey(value);
 
                         string keyPrefix = "";
                         // #NOTE (Juan): Supported resource types are added in a case by case basis

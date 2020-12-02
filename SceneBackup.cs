@@ -33,7 +33,7 @@ public class SceneBackup
             for(int i = 0; i < sceneCount; ++i)
             {
                 var scene = EditorSceneManager.GetSceneAt(i);
-                if(scene.path.IndexOf(BACKUP_EXTENSION) == -1)
+                if(scene.path.IndexOf(BACKUP_EXTENSION) == -1 && scene.path.Length > SCENE_EXTENSION.Length)
                 {
                     string scenePath = scene.path.Substring(0, scene.path.IndexOf(SCENE_EXTENSION));
                     EditorSceneManager.SaveScene(scene, scenePath + BACKUP_EXTENSION + SCENE_EXTENSION, true);
