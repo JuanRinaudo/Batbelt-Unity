@@ -71,6 +71,7 @@ public class MetadataCodeGen
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
                 writter.WriteLine("    public const string " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
+                writter.WriteLine("    public const int " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + "_HASH" + " = " + parameters[parameterIndex].nameHash + ";");
             }
             UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
             for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
