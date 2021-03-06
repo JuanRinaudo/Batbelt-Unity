@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -65,13 +66,13 @@ public class MetadataCodeGen
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
 
             StreamWriter writter = new StreamWriter(filePath + animatorController.name + "Animator.cs");
-            writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
+            writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand\n\n");
             writter.WriteLine("public class " + animatorController.name + "Animator { ");
             UnityEngine.AnimatorControllerParameter[] parameters = animatorController.parameters;
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
                 writter.WriteLine("    public const string " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
-                writter.WriteLine("    public const int " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + "_HASH" + " = " + parameters[parameterIndex].nameHash + ";");
+                writter.WriteLine("    public const int HASH_" + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = " + parameters[parameterIndex].nameHash + ";");
             }
             UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
             for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
