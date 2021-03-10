@@ -15,6 +15,10 @@ public class FindMissingScriptsRecursively : EditorWindow
 
     public void OnGUI()
     {
+        GUILayout.Label("Find Missing scripts");
+
+        GUILayout.Space(16);
+
         if (GUILayout.Button("Find Missing Scripts in selected GameObjects"))
         {
             FindInSelected();
