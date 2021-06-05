@@ -96,7 +96,7 @@ public class MetadataCodeGen
 
     private static string NormalizeKey(string key)
     {
-        return key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
+        return (char.IsNumber(key[0]) ? "_" : "") + key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
     }
 
     [MenuItem("Batbelt/Codegen/Generate Resources File")]
@@ -213,6 +213,31 @@ public class MetadataCodeGen
         //    writter.WriteLine("    public const string " + layers[layerIndex].Replace(' ', '_').ToUpper() + " = \"" + layers[layerIndex] + "\";");
         //}
 
+        writter.WriteLine("}");
+        writter.Close();
+
+        AssetDatabase.Refresh();
+    }
+
+    [MenuItem("Batbelt/Codegen/Generate Scenes File")]
+    public static void GenerateScenessFile()
+    {
+        string filePath = "Assets/CodeGen/";
+        BatUtils.CheckAndGenerateAssetsFolder(filePath);
+        StreamWriter writter = new StreamWriter(filePath + "UnityScenes.cs");
+        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
+        writter.WriteLine("public class UnityScenes {");
+        string[] scenesGUID = AssetDatabase.FindAssets("t: Scene");
+        for (int sceneIndex = 0; sceneIndex < scenesGUID.Length; ++sceneIndex)
+        {
+            string path = AssetDatabase.GUIDToAssetPath(scenesGUID[sceneIndex]);
+            SceneAsset scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+            if(scene != null)
+            {
+                int number;
+                writter.WriteLine("    public const string " + NormalizeKey(scene.name) + " = \"" + scene.name + "\";");
+            }
+        }
         writter.WriteLine("}");
         writter.Close();
 
