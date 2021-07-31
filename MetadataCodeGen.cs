@@ -1,7 +1,6 @@
 ﻿#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
@@ -9,13 +8,26 @@ using UnityEditorInternal;
 public class MetadataCodeGen
 {
 
+    [MenuItem("Batbelt/Codegen/Generate All Files")]
+    public static void GenerateAllFiles()
+    {
+        GenerateLayerFile();
+        GenerateTagsFile();
+        GenerateAnimatorParameterFiles();
+        GenerateResourcesFile();
+        GenerateScenesFile();
+    }
+
     [MenuItem("Batbelt/Codegen/Generate Layer File")]
     public static void GenerateLayerFile()
     {
-        string filePath = "Assets/CodeGen/";
+        string filePath = "Assets/Batbelt/CodeGen/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
         StreamWriter writter = new StreamWriter(filePath + "UnityLayers.cs");
-        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
+        writter.NewLine = System.Environment.NewLine;
+        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand");
+        writter.WriteLine("");
+        writter.WriteLine("");
         writter.WriteLine("public class UnityLayers {");
         string[] layers = InternalEditorUtility.layers;
         for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
@@ -37,10 +49,13 @@ public class MetadataCodeGen
     [MenuItem("Batbelt/Codegen/Generate Tag File")]
     public static void GenerateTagsFile()
     {
-        string filePath = "Assets/CodeGen/";
+        string filePath = "Assets/Batbelt/CodeGen/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
         StreamWriter writter = new StreamWriter(filePath + "UnityTags.cs");
-        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
+        writter.NewLine = System.Environment.NewLine;
+        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand");
+        writter.WriteLine("");
+        writter.WriteLine("");
         writter.WriteLine("public class UnityTags {");
         string[] layers = InternalEditorUtility.tags;
         for (int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
@@ -53,10 +68,15 @@ public class MetadataCodeGen
         AssetDatabase.Refresh();
     }
 
+    private static string NormalizeKey(string key)
+    {
+        return (char.IsNumber(key[0]) ? "_" : "") + key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('(', '_').Replace(')', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
+    }
+
     [MenuItem("Batbelt/Codegen/Generate Animator Files")]
     public static void GenerateAnimatorParameterFiles()
     {
-        string filePath = "Assets/CodeGen/Animator/";
+        string filePath = "Assets/Batbelt/CodeGen/Animator/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
 
         string[] animatorsGUIDs = AssetDatabase.FindAssets("t:AnimatorController");
@@ -65,24 +85,29 @@ public class MetadataCodeGen
             string path = AssetDatabase.GUIDToAssetPath(animatorsGUIDs[animatorIndex]);
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
 
-            StreamWriter writter = new StreamWriter(filePath + animatorController.name + "Animator.cs");
-            writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand\n\n");
-            writter.WriteLine("public class " + animatorController.name + "Animator { ");
+            string filename = NormalizeKey(animatorController.name);
+            StreamWriter writter = new StreamWriter(filePath + filename + "Animator.cs");
+            writter.NewLine = System.Environment.NewLine;
+            writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand");
+            writter.WriteLine("");
+            writter.WriteLine("");
+            writter.WriteLine("public class " + filename + "Animator { ");
             UnityEngine.AnimatorControllerParameter[] parameters = animatorController.parameters;
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
-                writter.WriteLine("    public const string " + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
-                writter.WriteLine("    public const int HASH_" + parameters[parameterIndex].name.Replace(' ', '_').ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = " + parameters[parameterIndex].nameHash + ";");
+                string animationParameterName = NormalizeKey(parameters[parameterIndex].name);
+                writter.WriteLine("    public const string " + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
+                writter.WriteLine("    public const int HASH_" + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = " + parameters[parameterIndex].nameHash + ";");
             }
             UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
             for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
             {
-                string prefix = layers[layerIndex].name.Replace(" ", "_").ToUpper();
+                string prefix = NormalizeKey(layers[layerIndex].name).ToUpper();
                 UnityEditor.Animations.ChildAnimatorState[] states = layers[layerIndex].stateMachine.states;
                 for(int stateIndex = 0; stateIndex < states.Length; ++stateIndex)
                 {
                     UnityEditor.Animations.AnimatorState currentState = states[stateIndex].state;
-                    string keyName = currentState.name.Replace(' ', '_').ToUpper();
+                    string keyName = NormalizeKey(currentState.name).ToUpper();
                     writter.WriteLine("    public const string " + keyName + " = \"" + currentState.name + "\";");
                     writter.WriteLine("    public const int " + keyName + "_HASH = " + currentState.nameHash + ";");
                 }
@@ -94,15 +119,10 @@ public class MetadataCodeGen
         AssetDatabase.Refresh();
     }
 
-    private static string NormalizeKey(string key)
-    {
-        return (char.IsNumber(key[0]) ? "_" : "") + key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
-    }
-
     [MenuItem("Batbelt/Codegen/Generate Resources File")]
     public static void GenerateResourcesFile()
     {
-        string filePath = "Assets/CodeGen/";
+        string filePath = "Assets/Batbelt/CodeGen/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
 
         string[] foldersGUIDs = AssetDatabase.FindAssets("t:Folder");
@@ -124,7 +144,10 @@ public class MetadataCodeGen
         }
 
         StreamWriter writter = new StreamWriter(filePath + "UnityResources.cs");
-        writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand\n\n");
+        writter.NewLine = System.Environment.NewLine;
+        writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand");
+        writter.WriteLine("");
+        writter.WriteLine("");
         writter.WriteLine("public class UnityResources {");
 
         while (folderStack.Count > 0)
@@ -134,7 +157,7 @@ public class MetadataCodeGen
             string[] fileEntries = Directory.GetFileSystemEntries(fullPath);
             foreach (string entryFullPath in fileEntries)
             {
-                int cropStartIndex = entryFullPath.IndexOf("/Resources") + 11; // #NOTE (Juan): Added 11 to index because it goes to the next slash;
+                int cropStartIndex = entryFullPath.IndexOf("/Assets") + 8; // #NOTE (Juan): Added X to index because it goes to the next slash;
 
                 string resourcePath = entryFullPath.Substring(cropStartIndex);
 
@@ -220,22 +243,28 @@ public class MetadataCodeGen
     }
 
     [MenuItem("Batbelt/Codegen/Generate Scenes File")]
-    public static void GenerateScenessFile()
+    public static void GenerateScenesFile()
     {
-        string filePath = "Assets/CodeGen/";
+        string filePath = "Assets/Batbelt/CodeGen/";
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
         StreamWriter writter = new StreamWriter(filePath + "UnityScenes.cs");
-        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand\n\n");
+        writter.NewLine = System.Environment.NewLine;
+        writter.WriteLine("// NOTE(Batbelt): This file was generated automaticaly, do not edit by hand");
+        writter.WriteLine("");
+        writter.WriteLine("");
         writter.WriteLine("public class UnityScenes {");
         string[] scenesGUID = AssetDatabase.FindAssets("t: Scene");
         for (int sceneIndex = 0; sceneIndex < scenesGUID.Length; ++sceneIndex)
         {
             string path = AssetDatabase.GUIDToAssetPath(scenesGUID[sceneIndex]);
+
+            int cropStartIndex = path.IndexOf("/Assets") + 8; // #NOTE (Juan): Added X to index because it goes to the next slash;
+            string resourcePath = path.Substring(cropStartIndex);
+
             SceneAsset scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
             if(scene != null)
             {
-                int number;
-                writter.WriteLine("    public const string " + NormalizeKey(scene.name) + " = \"" + scene.name + "\";");
+                writter.WriteLine("    public const string " + NormalizeKey(path) + " = \"" + scene.name + "\";");
             }
         }
         writter.WriteLine("}");
