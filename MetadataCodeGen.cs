@@ -68,11 +68,6 @@ public class MetadataCodeGen
         AssetDatabase.Refresh();
     }
 
-    private static string NormalizeKey(string key)
-    {
-        return (char.IsNumber(key[0]) ? "_" : "") + key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('(', '_').Replace(')', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
-    }
-
     [MenuItem("Batbelt/Codegen/Generate Animator Files")]
     public static void GenerateAnimatorParameterFiles()
     {
@@ -85,7 +80,7 @@ public class MetadataCodeGen
             string path = AssetDatabase.GUIDToAssetPath(animatorsGUIDs[animatorIndex]);
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
 
-            string filename = NormalizeKey(animatorController.name);
+            string filename = BatUtils.NormalizeKey(animatorController.name);
             StreamWriter writter = new StreamWriter(filePath + filename + "Animator.cs");
             writter.NewLine = System.Environment.NewLine;
             writter.WriteLine("// #NOTE(StationUtils): This file was generated automaticaly, do not edit by hand");
@@ -95,19 +90,19 @@ public class MetadataCodeGen
             UnityEngine.AnimatorControllerParameter[] parameters = animatorController.parameters;
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
-                string animationParameterName = NormalizeKey(parameters[parameterIndex].name);
+                string animationParameterName = BatUtils.NormalizeKey(parameters[parameterIndex].name);
                 writter.WriteLine("    public const string " + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
                 writter.WriteLine("    public const int HASH_" + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = " + parameters[parameterIndex].nameHash + ";");
             }
             UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
             for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
             {
-                string prefix = NormalizeKey(layers[layerIndex].name).ToUpper();
+                string prefix = BatUtils.NormalizeKey(layers[layerIndex].name).ToUpper();
                 UnityEditor.Animations.ChildAnimatorState[] states = layers[layerIndex].stateMachine.states;
                 for(int stateIndex = 0; stateIndex < states.Length; ++stateIndex)
                 {
                     UnityEditor.Animations.AnimatorState currentState = states[stateIndex].state;
-                    string keyName = NormalizeKey(currentState.name).ToUpper();
+                    string keyName = BatUtils.NormalizeKey(currentState.name).ToUpper();
                     writter.WriteLine("    public const string " + keyName + " = \"" + currentState.name + "\";");
                     writter.WriteLine("    public const int " + keyName + "_HASH = " + currentState.nameHash + ";");
                 }
@@ -168,7 +163,7 @@ public class MetadataCodeGen
                     if (attributes.HasFlag(FileAttributes.Directory))
                     {
                         // #TODO (Juan): If this is slow, check for a faster/better way to do this
-                        string key = NormalizeKey(resourcePath);
+                        string key = BatUtils.NormalizeKey(resourcePath);
                         string value = resourcePath.Replace('\\', '/');
 
                         folderStack.Push(entryFullPath);
@@ -182,7 +177,7 @@ public class MetadataCodeGen
 
                         string value = resourcePath.Substring(0, extensionIndex).Replace('\\', '/');
                         // #TODO (Juan): If this is slow, check for a faster/better way to do this
-                        string key = NormalizeKey(value);
+                        string key = BatUtils.NormalizeKey(value);
 
                         string keyPrefix = "";
                         // #NOTE (Juan): Supported resource types are added in a case by case basis
@@ -264,7 +259,7 @@ public class MetadataCodeGen
             SceneAsset scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
             if(scene != null)
             {
-                writter.WriteLine("    public const string " + NormalizeKey(path) + " = \"" + scene.name + "\";");
+                writter.WriteLine("    public const string " + BatUtils.NormalizeKey(path) + " = \"" + scene.name + "\";");
             }
         }
         writter.WriteLine("}");

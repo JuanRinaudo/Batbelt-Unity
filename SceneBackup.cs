@@ -10,7 +10,12 @@ using UnityEditor.SceneManagement;
 [InitializeOnLoad]
 public class SceneBackup
 {
-    public static float saveTime = 10;
+    public struct SaveBackupConfig {
+        public float saveTime;
+    }
+
+    public static SaveBackupConfig config;
+
     public static double lastSaveTimestamp = 0;
     public static bool UpdateAdded = false;
 
@@ -19,17 +24,34 @@ public class SceneBackup
     public const string META_EXTENSION = ".meta";
 
     static SceneBackup()
-    {        
+    {
+        LoadConfig();
+
         if(!UpdateAdded)
         {
             EditorApplication.update += Update;
             UpdateAdded = true;
         }
     }
+
+    static void LoadConfig()
+    { 
+        if(!BatUtils.LoadConfig<SaveBackupConfig>(out config, typeof(SceneBackup).Name))
+        {
+            config = new SaveBackupConfig();
+            config.saveTime = 60;
+            SaveConfig();
+        }
+    }
+
+    public static void SaveConfig()
+    {
+        BatUtils.SaveConfig(config, typeof(SceneBackup).Name);
+    }
     
     static void Update()
     {
-        if(!EditorApplication.isPlaying && EditorApplication.timeSinceStartup - lastSaveTimestamp > saveTime)
+        if(!EditorApplication.isPlaying && EditorApplication.timeSinceStartup - lastSaveTimestamp > config.saveTime)
         {
             int sceneCount = EditorSceneManager.sceneCount;
             for(int i = 0; i < sceneCount; ++i)

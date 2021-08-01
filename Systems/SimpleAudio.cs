@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 [DefaultExecutionOrder(-75)]
 public class SimpleAudio : MonoBehaviour
 {
-    public static bool soundEnabled = true;
+    public static bool soundEnabled = false;
 
     public static SimpleAudio instance;
 
@@ -36,6 +36,7 @@ public class SimpleAudio : MonoBehaviour
         if (instance != null)
         {
             Destroy(instance.gameObject);
+            return;
         }
 
         if (mixer == null)

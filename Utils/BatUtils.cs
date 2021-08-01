@@ -3,9 +3,45 @@ using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Newtonsoft.Json;
 
 public class BatUtils
 {
+
+    private const string SAVE_PATH_PREFIX = "Assets/BatBelt/Config/";
+    private const string JSON_EXTENSION = ".json";
+
+    public static bool LoadConfig<T>(out T output, string configName)
+    {
+        string filepath = SAVE_PATH_PREFIX + configName + JSON_EXTENSION;
+        
+        if(File.Exists(filepath))
+        {
+            StreamReader reader = new StreamReader(filepath);
+            output = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+            reader.Close();
+        }
+        else
+        {
+            output = default(T);
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void SaveConfig<T>(T config, string configName)
+    {
+        CheckAndGenerateAssetsFolder(SAVE_PATH_PREFIX);
+        StreamWriter writter = new StreamWriter(SAVE_PATH_PREFIX + configName + JSON_EXTENSION);        
+        writter.Write(JsonConvert.SerializeObject(config));
+        writter.Close();
+    }
+
+    public static string NormalizeKey(string key)
+    {
+        return (char.IsNumber(key[0]) ? "_" : "") + key.Replace(' ', '_').Replace('-', '_').Replace('[', '_').Replace(']', '_').Replace('(', '_').Replace(')', '_').Replace('/', '_').Replace('\\', '_').Replace('.', '_').Replace('&', '_').ToUpper();
+    }
 
     public static bool CheckAndGenerateAssetsFolder(string path)
     {
