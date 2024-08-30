@@ -8,9 +8,9 @@ public class SceneBackupEditor : EditorWindow
 {
 
     [MenuItem("Batbelt/Config/Scene Backup")]
-    public static void CreatwWindow()
+    public static void CreateWindow()
     {
-        SceneBackupEditor sceneBackup = (SceneBackupEditor)EditorWindow.GetWindow(typeof(SceneBackupEditor));
+        SceneBackupEditor sceneBackup = (SceneBackupEditor)GetWindow(typeof(SceneBackupEditor));
     }
 
     private void OnGUI()

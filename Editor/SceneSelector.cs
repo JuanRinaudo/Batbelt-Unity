@@ -21,9 +21,9 @@ public class SceneSelector : EditorWindow
     private List<SceneSelectorData> sceneData = new List<SceneSelectorData>();
 
     [MenuItem("Batbelt/Windows/Scene Selector")]
-    public static void CreatwWindow()
+    public static void CreateWindow()
     {
-        sceneSelector = (SceneSelector)EditorWindow.GetWindow(typeof(SceneSelector));
+        sceneSelector = (SceneSelector)GetWindow(typeof(SceneSelector));
         sceneSelector.RefreshScenes();
 
         EditorBuildSettings.sceneListChanged += sceneSelector.RefreshScenes;
