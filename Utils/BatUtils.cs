@@ -8,8 +8,10 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.Build;
 #endif
 
 public static class BatUtils
@@ -316,11 +318,13 @@ public static class BatUtils
     public static List<string> GetDefinitionList()
     {
 #if UNITY_ANDROID
-        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
+        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Android).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
 #elif UNITY_IOS
-        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
+        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.iOS).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
 #elif UNITY_STANDALONE
-        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(BuildTargetGroup.Standalone).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
+        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.Standalone).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
+#elif UNITY_WEBGL
+        string[] scriptingDefines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.WebGL).Split(DEFINE_SEPARATOR, StringSplitOptions.RemoveEmptyEntries);
 #endif
         List<string> definitionList = new List<string>(scriptingDefines);
 
