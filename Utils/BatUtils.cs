@@ -7,7 +7,10 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Collections.Generic;
 using UnityEngine;
+
+#if NEWTONSOFT_ENABLED
 using Newtonsoft.Json;
+#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -26,6 +29,24 @@ public static class BatUtils
 
     private readonly static char[] DEFINE_SEPARATOR = new char[] { ';', ',', ' ' };
 
+    static T Deserialize<T>(string jsonText)
+    {  
+#if NEWTONSOFT_ENABLED
+        return JsonConvert.DeserializeObject<T>(jsonText);
+#else
+        return JsonUtility.FromJson<T>(jsonText);
+#endif
+    }
+
+    static string Serialize<T>(T target)
+    {  
+#if NEWTONSOFT_ENABLED
+        return JsonConvert.SerializeObject(target);
+#else
+        return JsonUtility.ToJson(target);
+#endif
+    }
+
     public static bool LoadConfig<T>(out T output)
     {
         string filepath = LOAD_PATH_RUNTIME_PREFIX + typeof(T).Name;
@@ -34,7 +55,7 @@ public static class BatUtils
         if(serializedJson != null)
         {
             string jsonText = serializedJson.text;
-            output = JsonConvert.DeserializeObject<T>(jsonText);
+            output = Deserialize<T>(jsonText);
         }
         else
         {
@@ -56,7 +77,7 @@ public static class BatUtils
         if(File.Exists(filepath))
         {
             StreamReader reader = new StreamReader(filepath);
-            output = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+            output = Deserialize<T>(reader.ReadToEnd());
             reader.Close();
         }
         else
@@ -103,7 +124,7 @@ public static class BatUtils
     public static void SavePersistentData<T>(T input, string name)
     {
         StreamWriter writter = new StreamWriter(GetUniquePersistentDataPath() + "/" + name + JSON_EXTENSION);
-        writter.Write(JsonConvert.SerializeObject(input));
+        writter.Write(Serialize(input));
         writter.Close();
     }
 
@@ -128,7 +149,7 @@ public static class BatUtils
         if(File.Exists(filepath))
         {
             StreamReader reader = new StreamReader(File.OpenRead(filepath));
-            output = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+            output = Deserialize<T>(reader.ReadToEnd());
             reader.Close();
         }
         else
@@ -146,7 +167,7 @@ public static class BatUtils
 
         CheckAndGenerateAssetsFolder(pathPrefix);
         StreamWriter writter = new StreamWriter(pathPrefix + typeof(T).Name + JSON_EXTENSION);     
-        writter.Write(JsonConvert.SerializeObject(config));
+        writter.Write(Serialize(config));
         writter.Close();
 
         if(runtimeConfig)
