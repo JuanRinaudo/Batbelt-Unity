@@ -367,11 +367,17 @@ public static class BatUtils
             currentDefinitions.Remove(newDefinition);
         }
     }
+    
+    public static void ApplyDefinitions(List<string> currentDefinitions, NamedBuildTarget target)
+    {        
+        PlayerSettings.SetScriptingDefineSymbols(target, String.Join(";", currentDefinitions.ToArray()));
+    }
 
     public static void ApplyDefinitions(List<string> currentDefinitions)
     {
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, String.Join(";", currentDefinitions.ToArray()));
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, String.Join(";", currentDefinitions.ToArray()));
+        PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.WebGL, String.Join(";", currentDefinitions.ToArray()));
+        PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.Android, String.Join(";", currentDefinitions.ToArray()));
+        PlayerSettings.SetScriptingDefineSymbols(NamedBuildTarget.iOS, String.Join(";", currentDefinitions.ToArray()));
     }
 
     public static WebClient DownloadTSVFromPublicSheet(string filepath, string fileId, string tabId = "0", AsyncCompletedEventHandler onComplete = null)
