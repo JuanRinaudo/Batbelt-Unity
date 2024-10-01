@@ -80,35 +80,40 @@ public class SimpleAudio : MonoBehaviour
         musicSource.volume = volume;
         musicSource.Play();
     }
-
-    public void SetMasterVolume(float volume)
+    
+    public void SetMusicVolume(float volume = 1.0f)
     {
-        mixer.SetFloat(MASTER_VOLUME_NAME, volume * 100f - 80f);
+        musicSource.volume = volume;
     }
 
-    public void SetMusicVolume(float volume)
+    public void SetMixerMasterVolume(float volume)
     {
-        mixer.SetFloat(MUSIC_VOLUME_NAME, volume * 100f - 80f);
+        mixer.SetFloat(MASTER_VOLUME_NAME, volume * 80f - 80f);
     }
 
-    public void SetSFXVolume(float volume)
+    public void SetMixerMusicVolume(float volume)
     {
-        mixer.SetFloat(SFX_VOLUME_NAME, volume * 100f - 80f);
+        mixer.SetFloat(MUSIC_VOLUME_NAME, volume * 80f - 80f);
     }
 
-    public float GetMasterVolume()
+    public void SetMixerSFXVolume(float volume)
+    {
+        mixer.SetFloat(SFX_VOLUME_NAME, volume * 80f - 80f);
+    }
+
+    public float GetMixerMasterVolume()
     {
         float volume;
         return mixer.GetFloat(MASTER_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
     }
 
-    public float GetMusicVolume()
+    public float GetMixerMusicVolume()
     {
         float volume;
         return mixer.GetFloat(MUSIC_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
     }
 
-    public float GetSFXVolume()
+    public float GetMixerSFXVolume()
     {
         float volume;
         return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
@@ -129,12 +134,12 @@ public class SimpleAudio : MonoBehaviour
     public void SoundOn()
     {
         soundEnabled = true;
-        SetMasterVolume(1);
+        SetMixerMasterVolume(1);
     }
 
     public void SoundOff()
     {
         soundEnabled = false;
-        SetMasterVolume(0);
+        SetMixerMasterVolume(0);
     }
 }
