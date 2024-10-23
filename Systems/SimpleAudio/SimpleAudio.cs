@@ -17,6 +17,8 @@ public class SimpleAudio : MonoBehaviour
     public AudioSource sfxSource;
     public AudioSource musicSource;
 
+    static float _offMixerMasterVolume;
+
     const string SIMPLE_INSTANCE_RESOURCE_PATH = "Batbelt/SimpleAudioInstance";
     const string BASE_MIXER_RESOURCE_PATH = "Batbelt/SimpleAudioInstance";
     const string MASTER_VOLUME_NAME = "MasterVolume";
@@ -88,6 +90,7 @@ public class SimpleAudio : MonoBehaviour
 
     public void SetMixerMasterVolume(float volume)
     {
+        _offMixerMasterVolume = volume;
         mixer.SetFloat(MASTER_VOLUME_NAME, volume * 80f - 80f);
     }
 
@@ -134,11 +137,13 @@ public class SimpleAudio : MonoBehaviour
     public void SoundOn()
     {
         soundEnabled = true;
-        SetMixerMasterVolume(1);
+        SetMixerMasterVolume(_offMixerMasterVolume);
     }
 
     public void SoundOff()
     {
+        _offMixerMasterVolume = GetMixerMasterVolume();
+
         soundEnabled = false;
         SetMixerMasterVolume(0);
     }
