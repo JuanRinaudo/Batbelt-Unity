@@ -58,7 +58,7 @@ public class SaveTransforms : EditorWindow
             }
 
             GUILayout.Space(16);
-
+#if !UNITY_MIN_MODULES
             GUILayout.Label("Utils");
             if (GUILayout.Button("Mesh Colliders Convex Enable"))
             {
@@ -68,9 +68,10 @@ public class SaveTransforms : EditorWindow
             {
                 SetConvexMeshColliders(selectedTransform, false);
             }
+#endif
         }
     }
-
+#if !UNITY_MIN_MODULES
     private void SetConvexMeshColliders(Transform transform, bool value)
     {
         MeshCollider[] colliders = transform.GetComponentsInChildren<MeshCollider>(true);
@@ -79,6 +80,6 @@ public class SaveTransforms : EditorWindow
             colliders[i].convex = value;
         }
     }
-
+#endif
 }
 #endif

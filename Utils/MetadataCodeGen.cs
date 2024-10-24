@@ -19,7 +19,9 @@ public static class MetadataCodeGen
         GenerateLayerFile();
         GenerateSortingLayerFile();
         GenerateTagsFile();
+#if !UNITY_MIN_MODULES
         GenerateAnimatorParameterFiles();
+#endif
         GenerateResourcesFile();
         GenerateScenesFile();
     }
@@ -94,7 +96,7 @@ public static class MetadataCodeGen
 
         AssetDatabase.Refresh();
     }
-
+#if !UNITY_MIN_MODULES
     [MenuItem("Batbelt/Codegen/Generate Animator Files")]
     public static void GenerateAnimatorParameterFiles()
     {
@@ -135,7 +137,7 @@ public static class MetadataCodeGen
 
         AssetDatabase.Refresh();
     }
-
+#endif
     [MenuItem("Batbelt/Codegen/Generate Resources File")]
     public static void GenerateResourcesFile()
     {
