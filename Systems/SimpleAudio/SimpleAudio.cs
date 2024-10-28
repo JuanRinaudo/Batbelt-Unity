@@ -52,6 +52,7 @@ public class SimpleAudio : MonoBehaviour
             if (sfxSource != null && sfxGroups.Length > 0) { sfxSource.outputAudioMixerGroup = sfxGroups[0]; }
         }
 
+        soundEnabled = true;
         if (soundEnabled)
         {
             SoundOn();
@@ -90,7 +91,9 @@ public class SimpleAudio : MonoBehaviour
 
     public void SetMixerMasterVolume(float volume)
     {
-        _offMixerMasterVolume = volume;
+        if(soundEnabled)
+            _offMixerMasterVolume = volume;
+
         mixer.SetFloat(MASTER_VOLUME_NAME, volume * 80f - 80f);
     }
 
@@ -107,19 +110,19 @@ public class SimpleAudio : MonoBehaviour
     public float GetMixerMasterVolume()
     {
         float volume;
-        return mixer.GetFloat(MASTER_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
+        return mixer.GetFloat(MASTER_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
     }
 
     public float GetMixerMusicVolume()
     {
         float volume;
-        return mixer.GetFloat(MUSIC_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
+        return mixer.GetFloat(MUSIC_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
     }
 
     public float GetMixerSFXVolume()
     {
         float volume;
-        return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? ((volume + 80f) / 100f) : 0;
+        return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
     }
 
     public void ToggleAudio()
@@ -136,15 +139,19 @@ public class SimpleAudio : MonoBehaviour
 
     public void SoundOn()
     {
-        soundEnabled = true;
-        SetMixerMasterVolume(_offMixerMasterVolume);
+        if(!soundEnabled) {
+            soundEnabled = true;
+            SetMixerMasterVolume(_offMixerMasterVolume);
+        }
     }
-
+ 
     public void SoundOff()
     {
-        _offMixerMasterVolume = GetMixerMasterVolume();
-
-        soundEnabled = false;
-        SetMixerMasterVolume(0);
+        if(soundEnabled) {
+            _offMixerMasterVolume = GetMixerMasterVolume();
+ 
+            soundEnabled = false;
+            SetMixerMasterVolume(0);
+        }
     }
 }
