@@ -6,7 +6,8 @@ using UnityEngine.Audio;
 [DefaultExecutionOrder(-75)]
 public class SimpleAudio : MonoBehaviour
 {
-    public static bool soundEnabled = false;
+    public static bool SoundEnabled { get; private set; } = false;
+    public static bool SoundMuted { get; private set; } = false;
 
     public static SimpleAudio instance;
 
@@ -17,7 +18,7 @@ public class SimpleAudio : MonoBehaviour
     public AudioSource sfxSource;
     public AudioSource musicSource;
 
-    static float _offMixerMasterVolume;
+    static float _realMixerMasterVolume;
 
     const string SIMPLE_INSTANCE_RESOURCE_PATH = "Batbelt/SimpleAudioInstance";
     const string BASE_MIXER_RESOURCE_PATH = "Batbelt/SimpleAudioInstance";
@@ -52,16 +53,6 @@ public class SimpleAudio : MonoBehaviour
             if (sfxSource != null && sfxGroups.Length > 0) { sfxSource.outputAudioMixerGroup = sfxGroups[0]; }
         }
 
-        soundEnabled = true;
-        if (soundEnabled)
-        {
-            SoundOn();
-        }
-        else
-        {
-            SoundOff();
-        }
-
         instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -89,12 +80,19 @@ public class SimpleAudio : MonoBehaviour
         musicSource.volume = volume;
     }
 
-    public void SetMixerMasterVolume(float volume)
+    void InternalSetMasterVolume(float volume)
     {
-        if(soundEnabled)
-            _offMixerMasterVolume = volume;
+        if(!SoundEnabled || SoundMuted)
+            volume = 0;
 
         mixer.SetFloat(MASTER_VOLUME_NAME, volume * 80f - 80f);
+    }
+
+    public void SetMixerMasterVolume(float volume)
+    {
+        _realMixerMasterVolume = volume;
+
+        InternalSetMasterVolume(volume);
     }
 
     public void SetMixerMusicVolume(float volume)
@@ -125,33 +123,55 @@ public class SimpleAudio : MonoBehaviour
         return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
     }
 
-    public void ToggleAudio()
+    public bool ToggleMute()
     {
-        if (soundEnabled)
-        {
-            SoundOff();
-        }
+        if (SoundMuted)
+            UnmuteSound();
         else
-        {
-            SoundOn();
+            MuteSound();
+
+        return SoundMuted;
+    }
+
+    public void MuteSound()
+    {
+        if(!SoundMuted) {
+            SoundMuted = true;
+            InternalSetMasterVolume(0);
         }
     }
 
-    public void SoundOn()
+    public void UnmuteSound()
     {
-        if(!soundEnabled) {
-            soundEnabled = true;
-            SetMixerMasterVolume(_offMixerMasterVolume);
+        if(SoundMuted) {
+            SoundMuted = false;
+            InternalSetMasterVolume(_realMixerMasterVolume);
+        }
+    }
+
+    public bool ToggleEnabled()
+    {
+        if (SoundEnabled)
+            EnableSound();
+        else
+            DisableSound();
+
+        return SoundEnabled;
+    }
+
+    public void EnableSound()
+    {
+        if(!SoundEnabled) {
+            SoundEnabled = true;
+            InternalSetMasterVolume(_realMixerMasterVolume);
         }
     }
  
-    public void SoundOff()
+    public void DisableSound()
     {
-        if(soundEnabled) {
-            _offMixerMasterVolume = GetMixerMasterVolume();
- 
-            soundEnabled = false;
-            SetMixerMasterVolume(0);
+        if(SoundEnabled) { 
+            SoundEnabled = false;
+            InternalSetMasterVolume(0);
         }
     }
 }
