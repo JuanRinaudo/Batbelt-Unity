@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 42da4bb20d0c86e41922f3c91f2e7af3
+timeCreated: 1519087598
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/Example/Editor/DummyPropertyDrawer.cs
+  uploadId: 655038

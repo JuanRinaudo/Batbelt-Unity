@@ -1,11 +1,10 @@
 ﻿#if UNITY_EDITOR
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using TMPro;
-using EditorGUILayoutExtras = UnityEditor.AutoCompleteTextField.EditorGUILayout;
+using RotaryHeart.Lib.AutoComplete;
 
 [CustomEditor(typeof(LocalizeTMPGroupText))]
 public class LocalizeTMPGroupTextEditor : Editor
@@ -76,7 +75,7 @@ public class LocalizeTMPGroupTextEditor : Editor
             EditorGUILayout.EndHorizontal();
 
             GUI.contentColor = GUI.backgroundColor = localizeTextGroup.textGroupKeys[textIndex] != "" ? Color.white : Color.grey;
-            localizeTextGroup.textGroupKeys[textIndex] = EditorGUILayoutExtras.AutoCompleteTextField("Text key", localizeTextGroup.textGroupKeys[textIndex], textKeyOptions, "Text key here");
+            localizeTextGroup.textGroupKeys[textIndex] = AutoCompleteTextField.EditorGUILayout.AutoCompleteTextField("Text key", localizeTextGroup.textGroupKeys[textIndex], textKeyOptions, "Text key here");
             GUILayout.Space(6);
         }
 

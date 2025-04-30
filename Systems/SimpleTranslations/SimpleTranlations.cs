@@ -8,12 +8,21 @@ using System.Globalization;
 using UnityEditor;
 #endif
 
-public class SimpleTranslations : MonoBehaviour
+public class SimpleTranslations
 {
-
     public static bool translationsEnabled = false;
 
-    public static SimpleTranslations Instance;
+    public static SimpleTranslations _instance;
+    public static SimpleTranslations Instance
+    {
+        get
+        {
+            if (_instance == null)
+                _instance = new SimpleTranslations();
+            
+            return _instance;
+        }
+    }
 
     [HideInInspector] public string[] languages;
     [HideInInspector] public string currentLanguage;
@@ -30,31 +39,16 @@ public class SimpleTranslations : MonoBehaviour
 
     public static Action LanguageChanged;
 
-    public static SimpleTranslations CreateTranslationsSingleton()
+    public SimpleTranslations()
     {
-        if(Instance != null) { return null; }
-
-        GameObject instance = new GameObject();
-        instance.name = "SimpleTranslationsInstance";
-        SimpleTranslations translations = instance.AddComponent<SimpleTranslations>();
-
-        return translations;
-    }
-
-    private void Awake()
-    {
-        if (Instance != null)
-        {
-            Destroy(Instance.gameObject);
+        if (_instance != null)
             return;
-        }
 
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        _instance = this;
 
         if (!BatUtils.LoadConfig(out config))
         {
-            Debug.LogError("Translation config file not found, make sure this is setted up correctly");
+            Debug.LogError("Translation config file not found, make sure this is set up correctly");
         }
 
         CultureInfo cultureInfo = CultureInfo.InstalledUICulture;

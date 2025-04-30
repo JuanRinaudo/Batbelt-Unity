@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 88bc9002d24270d4d9e8f06a745454e8
+timeCreated: 1574626239
+licenseType: Store
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/Editor/RotaryHeart.AutoCompleteTextField.Editor.asmdef
+  uploadId: 655038

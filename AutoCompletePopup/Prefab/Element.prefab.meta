@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 589173fc5929f1f4cac8bac72e3aed2b
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/Prefab/Element.prefab
+  uploadId: 655038

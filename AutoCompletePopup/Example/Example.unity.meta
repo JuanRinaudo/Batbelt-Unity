@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f5e74a6b603d9664a91b065fa464d8f7
+timeCreated: 1519039858
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/Example/Example.unity
+  uploadId: 655038
