@@ -20,6 +20,11 @@ public class LocalizeTMPGroupText : MonoBehaviour
             }
         }
     }
+
+    private void OnValidate()
+    {
+        UpdateLocalization();
+    }
 #endif
 
     public void Start()
@@ -48,7 +53,7 @@ public class LocalizeTMPGroupText : MonoBehaviour
             }
             else
             {
-                BatCore.LogError("SimpleTranslations - No text setted on LocalizeTMPText");
+                BatCore.LogError($"SimpleTranslations - No text set on LocalizeTMPGroupText {gameObject.name}");
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using TMPro;
 
 public class LocalizeTMP3DText : MonoBehaviour
@@ -13,8 +14,13 @@ public class LocalizeTMP3DText : MonoBehaviour
     {
         if(textToLocalize == null)
         {
-            BatCore.LogWarning($"LocalizeTMPText: {gameObject.name} has no text asigned");
+            BatCore.LogWarning($"LocalizeTMPText: {gameObject.name} has no text assigned");
         }
+    }
+
+    private void OnValidate()
+    {
+        UpdateLocalization();
     }
 #endif
 
@@ -38,7 +44,7 @@ public class LocalizeTMP3DText : MonoBehaviour
         }
         else
         {
-            BatCore.LogError("SimpleTranslations - No text setted on LocalizeTMPText");
+            BatCore.LogError($"SimpleTranslations - No text set on LocalizeTMP3DText {gameObject.name}");
         }
     }
 

@@ -57,6 +57,8 @@ public class LocalizeTMPTextEditor : Editor {
 
         if (EditorGUI.EndChangeCheck())
         {
+            localizeText.UpdateLocalization();
+            
             EditorUtility.SetDirty(localizeText);
             EditorSceneManager.MarkSceneDirty(localizeText.gameObject.scene);
         }

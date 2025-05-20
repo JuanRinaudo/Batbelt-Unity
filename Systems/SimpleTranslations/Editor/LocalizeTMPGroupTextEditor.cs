@@ -100,6 +100,8 @@ public class LocalizeTMPGroupTextEditor : Editor
 
         if (EditorGUI.EndChangeCheck())
         {
+            localizeTextGroup.UpdateLocalization();
+
             EditorUtility.SetDirty(localizeTextGroup);
             EditorSceneManager.MarkSceneDirty(localizeTextGroup.gameObject.scene);
         }
