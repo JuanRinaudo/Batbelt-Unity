@@ -1,7 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using EditorGUIExtras = UnityEditor.AutoCompleteTextField.EditorGUI;
+using RotaryHeart.Lib.AutoComplete;
 
 [CustomPropertyDrawer(typeof(SpriteReference))]
 public class SpriteReferenceDrawer : PropertyDrawer
@@ -23,7 +23,7 @@ public class SpriteReferenceDrawer : PropertyDrawer
 
         string[] keyOptions = SpriteManager.GetAllKeys();
         SerializedProperty keyProperty = property.FindPropertyRelative("key");
-        keyProperty.stringValue = EditorGUIExtras.AutoCompleteTextField(keyRect, keyProperty.stringValue, keyOptions);
+        keyProperty.stringValue = AutoCompleteTextField.EditorGUI.AutoCompleteTextField(keyRect, keyProperty.stringValue, keyOptions);
 
         Sprite sprite = SpriteManager.TryGetEditorSprite(keyProperty.stringValue);
         if(GUI.Button(previewRect, "V") && sprite != null) {

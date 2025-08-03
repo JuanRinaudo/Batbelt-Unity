@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f7a846a32d6d63d45b10931dbc0b3ff7
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/Prefab/AutoCompleteTextField.prefab
+  uploadId: 655038

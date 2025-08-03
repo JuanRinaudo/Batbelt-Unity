@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: d20ff3a8202f8d142836d79b303624fc
+timeCreated: 1512434524
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/AutoCompleteTextField.cs
+  uploadId: 655038

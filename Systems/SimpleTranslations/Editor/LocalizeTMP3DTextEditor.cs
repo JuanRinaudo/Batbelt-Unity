@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using TMPro;
-using EditorGUILayoutExtras = UnityEditor.AutoCompleteTextField.EditorGUILayout;
+using RotaryHeart.Lib.AutoComplete;
 
 [CustomEditor(typeof(LocalizeTMP3DText))]
 public class LocalizeTMP3DTextEditor : Editor {
@@ -42,7 +42,7 @@ public class LocalizeTMP3DTextEditor : Editor {
         }
         GUILayout.Space(4);
         GUI.contentColor = GUI.backgroundColor = localizeText.textKey != "" ? Color.white : Color.grey;
-        localizeText.textKey = EditorGUILayoutExtras.AutoCompleteTextField("Text key", localizeText.textKey, textKeyOptions, "Text key here");
+        localizeText.textKey = AutoCompleteTextField.EditorGUILayout.AutoCompleteTextField("Text key", localizeText.textKey, textKeyOptions, "Text key here");
         GUILayout.Space(4);
         GUI.contentColor = GUI.backgroundColor = localizeText.modifier != TextModifier.NONE ? Color.white : Color.grey;
         localizeText.modifier = (TextModifier)EditorGUILayout.EnumPopup("Font modifier", localizeText.modifier);
@@ -57,6 +57,8 @@ public class LocalizeTMP3DTextEditor : Editor {
 
         if (EditorGUI.EndChangeCheck())
         {
+            localizeText.UpdateLocalization();
+            
             EditorUtility.SetDirty(localizeText);
             EditorSceneManager.MarkSceneDirty(localizeText.gameObject.scene);
         }

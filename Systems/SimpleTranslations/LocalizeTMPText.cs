@@ -16,6 +16,11 @@ public class LocalizeTMPText : MonoBehaviour
             BatCore.LogWarning($"LocalizeTMPText: {gameObject.name} has no text asigned");
         }
     }
+
+    private void OnValidate()
+    {
+        UpdateLocalization();
+    }
 #endif
 
     public void Start()
@@ -38,7 +43,7 @@ public class LocalizeTMPText : MonoBehaviour
         }
         else
         {
-            BatCore.LogError("SimpleTranslations - No text setted on LocalizeTMPText");
+            BatCore.LogError($"SimpleTranslations - No text set on LocalizeTMPText {gameObject.name}");
         }
     }
 
