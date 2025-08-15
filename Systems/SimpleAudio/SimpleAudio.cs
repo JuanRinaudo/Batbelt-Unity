@@ -6,7 +6,7 @@ using UnityEngine.Audio;
 [DefaultExecutionOrder(-75)]
 public class SimpleAudio : MonoBehaviour
 {
-    public static bool SoundEnabled { get; private set; } = false;
+    public static bool SoundEnabled { get; private set; } = true;
     public static bool SoundMuted { get; private set; } = false;
 
     public static SimpleAudio instance;
