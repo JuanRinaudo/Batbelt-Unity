@@ -59,11 +59,16 @@ public class SimpleDebugCommands : MonoBehaviour
         List<MethodInfo> allDebugMethods = new List<MethodInfo>();
         for(int i = 0; i < assemblies.Length; ++i)
         {
-            var assemblyMethods = assemblies[i].GetTypes()
-                          .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.Public))
-                          .Where(m => m.GetCustomAttributes(typeof(SimpleDebugCommandAttribute), false).Length > 0)
-                          .ToArray();
-            allDebugMethods.AddRange(assemblyMethods);
+            try {
+                var assemblyMethods = assemblies[i].GetTypes()
+                            .SelectMany(t => t.GetMethods(BindingFlags.Static | BindingFlags.Public))
+                            .Where(m => m.GetCustomAttributes(typeof(SimpleDebugCommandAttribute), false).Length > 0)
+                            .ToArray();
+                allDebugMethods.AddRange(assemblyMethods);
+            }
+            catch {
+                
+            }
         }
 
         debugMethods = allDebugMethods.ToArray();

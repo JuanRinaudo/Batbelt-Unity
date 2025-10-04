@@ -3,7 +3,7 @@ using AuraTween;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class BetterButton : Button
+public class BetterToggle : Toggle
 {
     public TextMeshProUGUI Label;
     public Image Icon;
