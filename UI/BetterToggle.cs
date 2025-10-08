@@ -6,7 +6,10 @@ using UnityEngine.UI;
 public class BetterToggle : Toggle
 {
     public TextMeshProUGUI Label;
+    public bool TransitionLabelColor = true;
+    
     public Image Icon;
+    public bool TransitionIconColor = true;
 
     public Tween _labelTween;
     public Tween _iconTween;
@@ -44,16 +47,16 @@ public class BetterToggle : Toggle
         
         if (instant)
         {
-            if (Label != null)
+            if (Label != null && TransitionLabelColor)
                 Label.color = targetColor;
-            if (Icon != null)
+            if (Icon != null && TransitionIconColor)
                 Icon.color = targetColor;
         }
         else
         {
-            if (Label != null)
+            if (Label != null && TransitionLabelColor)
                 _labelTween = Label.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
-            if (Icon != null)
+            if (Icon != null && TransitionIconColor)
                 _iconTween = Icon.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
         }
     }

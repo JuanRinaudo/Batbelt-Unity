@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 #if UNITY_EDITOR || DEBUG_BUILD
 [AttributeUsage(AttributeTargets.Method)]
@@ -144,7 +145,8 @@ public class SimpleDebugCommands : MonoBehaviour
     private void Update()
     {
         bool touchInputToggle = false;
-        if(Input.touchCount == 2 && debugInputTimer >= 0)
+        int touchCount = Touchscreen.current != null ? Touchscreen.current.touches.Count(t => t.isInProgress) : 0;
+        if(touchCount == 2 && debugInputTimer >= 0)
         {
             debugInputTimer += Time.deltaTime;
             if(debugInputTimer > 0.5f)
@@ -158,7 +160,7 @@ public class SimpleDebugCommands : MonoBehaviour
             debugInputTimer = 0;
         }
 
-        if(Input.GetKeyDown(KeyCode.F1) || touchInputToggle)
+        if(Keyboard.current.f1Key.wasPressedThisFrame || touchInputToggle)
         {
             ToggleDebugCommandsWindow();
         }

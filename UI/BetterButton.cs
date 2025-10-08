@@ -6,14 +6,31 @@ using UnityEngine.UI;
 public class BetterButton : Button
 {
     public TextMeshProUGUI Label;
+    public bool TransitionLabelColor = true;
+        
     public Image Icon;
+    public bool TransitionIconColor = true;
+
+    public Image SelectedHighlight;
 
     public Tween _labelTween;
     public Tween _iconTween;
+    public Tween _highlightTween;
 
     protected override void DoStateTransition(SelectionState state, bool instant)
     {
         base.DoStateTransition(state, instant);
+
+        if (_highlightTween.IsAlive)
+            _highlightTween.Cancel();
+        
+        if (SelectedHighlight != null && state != SelectionState.Selected)
+        {
+            if (instant)
+                SelectedHighlight.color = SelectedHighlight.color.WithA(0);
+            else
+                _highlightTween = SelectedHighlight.TwAlpha(0, colors.fadeDuration, Easer.Linear);
+        }
 
         switch (state)
         {
@@ -28,6 +45,15 @@ public class BetterButton : Button
                 break;
             case SelectionState.Selected:
                 TransitionGraphicsColors(instant, colors.selectedColor);
+
+                if (SelectedHighlight != null)
+                {
+                    if (instant)
+                        SelectedHighlight.color = SelectedHighlight.color.WithA(1);
+                    else
+                        _highlightTween = SelectedHighlight.TwAlpha(1, colors.fadeDuration, Easer.Linear);
+                }
+                
                 break;
             case SelectionState.Disabled:
                 TransitionGraphicsColors(instant, colors.disabledColor);
@@ -44,16 +70,16 @@ public class BetterButton : Button
         
         if (instant)
         {
-            if (Label != null)
+            if (Label != null && TransitionLabelColor)
                 Label.color = targetColor;
-            if (Icon != null)
+            if (Icon != null && TransitionIconColor)
                 Icon.color = targetColor;
         }
         else
         {
-            if (Label != null)
+            if (Label != null && TransitionLabelColor)
                 _labelTween = Label.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
-            if (Icon != null)
+            if (Icon != null && TransitionIconColor)
                 _iconTween = Icon.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
         }
     }
