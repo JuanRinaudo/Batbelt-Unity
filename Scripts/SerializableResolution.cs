@@ -26,6 +26,14 @@ public class SerializableResolution
         refreshRateNumerator = r.refreshRateRatio.numerator;
     }
 
+    public SerializableResolution(int width, int height, uint refreshRateDenominator, uint refreshRateNumerator)
+    {
+        this.width = width;
+        this.height = height;
+        this.refreshRateDenominator = refreshRateDenominator;
+        this.refreshRateNumerator = refreshRateNumerator;
+    }
+
     public static explicit operator Resolution(SerializableResolution r)
     {
         var refreshRate = new RefreshRate();
