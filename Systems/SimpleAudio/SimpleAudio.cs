@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using AuraTween;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -17,6 +18,11 @@ public class SimpleAudio : MonoBehaviour
     [Header(AttributeConstants.HeaderReferences)]
     public AudioSource sfxSource;
     public AudioSource musicSource;
+    public AudioSource altMusicSource;
+
+    public Tween _musicTween;
+    public Tween _altMusicTween;
+    public bool _altMusicPlaying = false;
 
     static float _realMixerMasterVolume;
 
@@ -50,6 +56,7 @@ public class SimpleAudio : MonoBehaviour
             AudioMixerGroup[] sfxGroups = mixer.FindMatchingGroups(SFX_GROUP_NAME);
 
             if (musicSource != null && musicGroups.Length > 0) { musicSource.outputAudioMixerGroup = musicGroups[0]; }
+            if (altMusicSource != null && musicGroups.Length > 0) { altMusicSource.outputAudioMixerGroup = musicGroups[0]; }
             if (sfxSource != null && sfxGroups.Length > 0) { sfxSource.outputAudioMixerGroup = sfxGroups[0]; }
         }
 
@@ -67,17 +74,45 @@ public class SimpleAudio : MonoBehaviour
         sfxSource.PlayOneShot(clip, volume);
     }
 
-    public void PlayMusic(AudioClip clip, float volume = 1.0f)
+    public void PlayMusic(AudioClip clip, float volume = 1.0f, float transitionDuration = -1f)
     {
-        musicSource.loop = true;
-        musicSource.clip = clip;
-        musicSource.volume = volume;
-        musicSource.Play();
+        _musicTween.TryCancel();
+        _altMusicTween.TryCancel();
+            
+        var currentSource = _altMusicPlaying ? altMusicSource : musicSource;
+        var targetSource = _altMusicPlaying ? musicSource : altMusicSource;
+        
+        _altMusicPlaying = !_altMusicPlaying;
+        
+        targetSource.loop = true;
+        targetSource.clip = clip;
+        targetSource.Play();
+        
+        if (transitionDuration > 0f)
+        {
+            currentSource.TwVolume(0f, transitionDuration, Easer.Linear).AddOnComplete(() =>
+            {
+                currentSource.Stop();
+            });
+            
+            targetSource.volume = 0f;
+            targetSource.TwVolume(volume, transitionDuration, Easer.Linear);
+        }
+        else
+        {
+            currentSource.volume = 0;
+            targetSource.volume = volume;
+        }
     }
     
-    public void SetMusicVolume(float volume = 1.0f)
+    public void SetMusicVolume(float volume = 1.0f, float duration = -1f)
     {
-        musicSource.volume = volume;
+        var audioSource = _altMusicPlaying ? altMusicSource : musicSource;
+        _musicTween.TryCancel();
+        if (duration > 0f)
+            _musicTween = audioSource.TwVolume(volume, duration, Easer.Linear);
+        else
+            audioSource.volume = volume;
     }
 
     void InternalSetMasterVolume(float volume)
