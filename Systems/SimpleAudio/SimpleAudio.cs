@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using AuraTween;
 using UnityEngine;
 using UnityEngine.Audio;
+using UnityEngine.Pool;
 
 [DefaultExecutionOrder(-75)]
 public class SimpleAudio : MonoBehaviour
@@ -16,13 +18,16 @@ public class SimpleAudio : MonoBehaviour
     public AudioMixer mixer;
 
     [Header(AttributeConstants.HeaderReferences)]
-    public AudioSource sfxSource;
+    public AudioSource baseSfxSource;
     public AudioSource musicSource;
     public AudioSource altMusicSource;
 
     public Tween _musicTween;
     public Tween _altMusicTween;
     public bool _altMusicPlaying = false;
+
+    List<AudioSource> _activeSFXSources;
+    ObjectPool<AudioSource> _sfxPool;
 
     static float _realMixerMasterVolume;
 
@@ -57,8 +62,25 @@ public class SimpleAudio : MonoBehaviour
 
             if (musicSource != null && musicGroups.Length > 0) { musicSource.outputAudioMixerGroup = musicGroups[0]; }
             if (altMusicSource != null && musicGroups.Length > 0) { altMusicSource.outputAudioMixerGroup = musicGroups[0]; }
-            if (sfxSource != null && sfxGroups.Length > 0) { sfxSource.outputAudioMixerGroup = sfxGroups[0]; }
+            if (baseSfxSource != null && sfxGroups.Length > 0) { baseSfxSource.outputAudioMixerGroup = sfxGroups[0]; }
         }
+
+        _activeSFXSources = new List<AudioSource>();
+        _sfxPool = new ObjectPool<AudioSource>(() =>
+        {
+            var instance = Instantiate(baseSfxSource, baseSfxSource.transform.parent);
+            return instance;
+        }, audioSource =>
+        {
+            audioSource.gameObject.SetActive(true);
+        }, audioSource =>
+        {
+            audioSource.gameObject.SetActive(false);
+            audioSource.clip = null;
+        }, audioSource =>
+        {
+            Destroy(audioSource.gameObject);
+        }, false, 10, 100);
 
         instance = this;
         DontDestroyOnLoad(gameObject);
@@ -66,12 +88,27 @@ public class SimpleAudio : MonoBehaviour
 
     public void PlaySoundBank(SoundBank sound, float volumeModifier = 1.0f)
     {
-        sfxSource.PlayOneShot(sound.GetRandomClip(), sound.volume * volumeModifier);
+        var clip = sound.GetRandomClip();
+        var pitch = sound.randomPitch ? sound.GetPitch() : sound.minPitch;
+
+        var sfxSource = _sfxPool.Get();
+        sfxSource.pitch = pitch;
+        sfxSource.volume = sound.volume * volumeModifier;
+        sfxSource.clip = clip;
+        sfxSource.Play();
+        
+        _activeSFXSources.Add(sfxSource);
     }
 
-    public void PlayAudioClip(AudioClip clip, float volume = 1.0f)
+    public void PlayAudioClip(AudioClip clip, float volume = 1.0f, float pitch = 1.0f)
     {
-        sfxSource.PlayOneShot(clip, volume);
+        var sfxSource = _sfxPool.Get();
+        sfxSource.pitch = pitch;
+        sfxSource.volume = volume;
+        sfxSource.clip = clip;
+        sfxSource.Play();
+        
+        _activeSFXSources.Add(sfxSource);
     }
 
     public void PlayMusic(AudioClip clip, float volume = 1.0f, float transitionDuration = -1f)
@@ -207,6 +244,19 @@ public class SimpleAudio : MonoBehaviour
         if(SoundEnabled) { 
             SoundEnabled = false;
             InternalSetMasterVolume(0);
+        }
+    }
+
+    void Update()
+    {
+        for (int index = _activeSFXSources.Count - 1; index >= 0; index--)
+        {
+            var activeSFX = _activeSFXSources[index];
+            if (!activeSFX.isPlaying)
+            {
+                _activeSFXSources.RemoveAt(index);
+                _sfxPool.Release(activeSFX);
+            }
         }
     }
 }

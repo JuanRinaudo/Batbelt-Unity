@@ -438,6 +438,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mixer: {fileID: 24100000, guid: caab4e98d7c492e42825d7d6c6aa034a, type: 2}
-  sfxSource: {fileID: 7570534380116915536}
+  baseSfxSource: {fileID: 7570534380116915536}
   musicSource: {fileID: 7570534380223426336}
   altMusicSource: {fileID: 6900047927046828339}
+  _altMusicPlaying: 0
