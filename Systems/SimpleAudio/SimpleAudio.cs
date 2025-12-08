@@ -118,6 +118,9 @@ public class SimpleAudio : MonoBehaviour
             
         var currentSource = _altMusicPlaying ? altMusicSource : musicSource;
         var targetSource = _altMusicPlaying ? musicSource : altMusicSource;
+
+        if (currentSource.clip == clip)
+            return;
         
         _altMusicPlaying = !_altMusicPlaying;
         
