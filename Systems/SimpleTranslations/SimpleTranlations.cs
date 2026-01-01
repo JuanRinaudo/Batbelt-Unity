@@ -104,6 +104,16 @@ public class SimpleTranslations
         return languageValues != null && languageValues.ContainsKey(key);
     }
 
+    public string SilentGetValue(string key)
+    {
+        if (key != null && languageValues != null && languageValues.ContainsKey(key))
+        {
+            return languageValues[key].Replace("\\n", "\n");
+        }
+        
+        return null;
+    }
+
     public string GetValue(string key)
     {
         if (key != null && languageValues != null && languageValues.ContainsKey(key))
@@ -121,6 +131,12 @@ public class SimpleTranslations
     {
         string value = Instance.GetValue(key);
         return value != null ? Resources.Load<T>(value) : default(T);
+    }
+
+    public static string SilentGetText(string key)
+    {
+        string value = Instance.SilentGetValue(key);
+        return value != null ? value : "KEY NOT FOUND!";
     }
 
     public static string GetText(string key)

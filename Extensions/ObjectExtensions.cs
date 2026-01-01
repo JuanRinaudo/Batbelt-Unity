@@ -7,19 +7,16 @@ using Newtonsoft.Json;
 
 public static class ObjectExtensions
 {
-#if NEWTONSOFT_ENABLED
     public static T DeepCopy<T>(this T self)
     {
+#if NEWTONSOFT_ENABLED
         var serialized = JsonConvert.SerializeObject(self);
         return JsonConvert.DeserializeObject<T>(serialized);
-    }
 #else
-    public static T DeepCopy<T>(this T self)
-    {
         var serialized = JsonUtility.ToJson(self);
         return JsonUtility.FromJson<T>(serialized);
-    }
 #endif
+    }
     
     public static T GetFieldValue<T>(this object obj, string name) {
         var fieldInfo = obj.GetType().GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);

@@ -214,8 +214,8 @@ public class SimpleTranslationsEditor : EditorWindow
         string folderPath = MetadataCodeGen.codegenFolderPath;
         BatUtils.CheckAndGenerateAssetsFolder(MetadataCodeGen.codegenFolderPath);
 
-        StreamWriter writter = new StreamWriter($"{folderPath}TranslationLanguages.cs");
-        writter.WriteLine("public class TranslationLanguages {");
+        StreamWriter writer = new StreamWriter($"{folderPath}TranslationLanguages.cs");
+        writer.WriteLine("public class TranslationLanguages {");
 
         string translationText = SimpleTranslations.GetTranslationsFile();
         string[] lines = translationText.Split('\n');
@@ -225,12 +225,12 @@ public class SimpleTranslationsEditor : EditorWindow
         {
             if(languages[languageIndex] != "")
             {
-                writter.WriteLine("\tpublic static string " + BatUtils.NormalizeKey(languages[languageIndex]).ToUpper() + " = \"" + languages[languageIndex] + "\";");
+                writer.WriteLine("\tpublic static string " + BatUtils.NormalizeKey(languages[languageIndex]).ToUpper() + " = \"" + languages[languageIndex] + "\";");
             }
         }
 
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
     }
 
     [MenuItem("Batbelt/Translation/Generate Keys File")]
@@ -239,8 +239,8 @@ public class SimpleTranslationsEditor : EditorWindow
         string folderPath = MetadataCodeGen.codegenFolderPath;
         BatUtils.CheckAndGenerateAssetsFolder(folderPath);
 
-        StreamWriter writter = new StreamWriter($"{folderPath}TranslationKeys.cs");
-        writter.WriteLine("public class TranslationKeys {");
+        StreamWriter writer = new StreamWriter($"{folderPath}TranslationKeys.cs");
+        writer.WriteLine("public class TranslationKeys {");
         
         string translationText = SimpleTranslations.GetTranslationsFile();
         string[] lines = translationText.Split('\n');
@@ -250,12 +250,12 @@ public class SimpleTranslationsEditor : EditorWindow
             string[] currentLine = lines[lineIndex].Trim(SimpleTranslations.charsToTrim).Split('\t');
             if (currentLine[0] != "")
             {
-                writter.WriteLine("\tpublic static string " + BatUtils.NormalizeKey(currentLine[0]).ToUpper() + " = \"" + currentLine[0] + "\";");
+                writer.WriteLine("\tpublic static string " + BatUtils.NormalizeKey(currentLine[0]).ToUpper() + " = \"" + currentLine[0] + "\";");
             }
         }
 
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
     }
 
 }
