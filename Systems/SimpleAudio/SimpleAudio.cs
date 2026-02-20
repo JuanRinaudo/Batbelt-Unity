@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using AuraTween;
+using SimpleTweens;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;

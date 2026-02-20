@@ -1,5 +1,5 @@
 using System;
-using AuraTween;
+using SimpleTweens;
 
 [Serializable]
 public struct TweenAnimationData<T>
