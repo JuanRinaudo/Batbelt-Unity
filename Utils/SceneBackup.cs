@@ -51,6 +51,12 @@ public class SceneBackup
     
     static void Update()
     {
+        if (config.saveTime <= 0)
+        {
+            config.saveTime = 10;
+            return;
+        }
+        
         if(!EditorApplication.isPlaying && EditorApplication.timeSinceStartup - lastSaveTimestamp > config.saveTime)
         {
             int sceneCount = EditorSceneManager.sceneCount;
