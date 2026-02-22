@@ -34,6 +34,7 @@ public class LocalizedTextEditor : PropertyDrawer
         
         position.height = EditorGUIUtility.singleLineHeight;
 
+        var originalContentColor = GUI.contentColor;
         GUI.contentColor = GUI.backgroundColor = keyProperty.stringValue != "" ? Color.white : Color.grey;
         keyProperty.stringValue = AutoCompleteTextField.EditorGUI.AutoCompleteTextField(position, "", keyProperty.stringValue, _textKeyOptions, "Text key here");
         
@@ -43,6 +44,8 @@ public class LocalizedTextEditor : PropertyDrawer
         
         if (EditorGUI.EndChangeCheck())
             EditorUtility.SetDirty(property.serializedObject.targetObject);
+        
+        GUI.contentColor = originalContentColor;
         
         EditorGUI.EndProperty();
     }

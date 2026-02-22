@@ -41,6 +41,9 @@ public class LocalizeTMPTextEditor : Editor {
             localizeText.textToLocalize = localizeText.GetComponent<TextMeshProUGUI>();
         }
         GUILayout.Space(4);
+        
+        var originalContentColor = GUI.contentColor;
+        
         GUI.contentColor = GUI.backgroundColor = localizeText.textKey != "" ? Color.white : Color.grey;
         localizeText.textKey = AutoCompleteTextField.EditorGUILayout.AutoCompleteTextField("Text key", localizeText.textKey, textKeyOptions, "Text key here");
         GUILayout.Space(4);
@@ -62,6 +65,8 @@ public class LocalizeTMPTextEditor : Editor {
             EditorUtility.SetDirty(localizeText);
             EditorSceneManager.MarkSceneDirty(localizeText.gameObject.scene);
         }
+        
+        GUI.contentColor = originalContentColor;
     }
 
 }

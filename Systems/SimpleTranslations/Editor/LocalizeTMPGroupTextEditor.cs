@@ -44,6 +44,8 @@ public class LocalizeTMPGroupTextEditor : Editor
             localizeTextGroup.textGroup = new TextMeshProUGUI[0];
         }
 
+        var originalContentColor = GUI.contentColor;
+        
         GUI.contentColor = Color.white;
         if (GUILayout.Button("Assign all child texts") && (localizeTextGroup.textGroup.Length == 0 || EditorUtility.DisplayDialog("Replace all texts", "Are you sure you want to replace all texts?", "Yes", "No")))
         {
@@ -105,6 +107,8 @@ public class LocalizeTMPGroupTextEditor : Editor
             EditorUtility.SetDirty(localizeTextGroup);
             EditorSceneManager.MarkSceneDirty(localizeTextGroup.gameObject.scene);
         }
+        
+        GUI.contentColor = originalContentColor;
     }
 
 }
