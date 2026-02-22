@@ -38,6 +38,15 @@ public class SimpleTranslations
     public static char[] charsToTrim = { ' ', '\r', '\n', '\t' };
 
     public static Action LanguageChanged;
+    
+#if UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Restart()
+    {
+        _instance = null;
+        LanguageChanged = delegate { };
+    }
+#endif
 
     public SimpleTranslations()
     {

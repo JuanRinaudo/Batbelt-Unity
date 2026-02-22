@@ -54,6 +54,14 @@ public class SimpleDebugCommands : MonoBehaviour
 
     private Dictionary<string, RectTransform> categoryContainer;
 
+#if UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Restart()
+    {
+        Instance = null;
+    }
+#endif
+    
     private void Awake()
     {
         var assemblies = AppDomain.CurrentDomain.GetAssemblies();

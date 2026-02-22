@@ -39,6 +39,14 @@ public class SimpleAudio : MonoBehaviour
     const string MUSIC_GROUP_NAME = "Music";
     const string SFX_GROUP_NAME = "SFX";
 
+#if UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Restart()
+    {
+        instance = null;
+    }
+#endif
+    
     public static SimpleAudio CreateAudioSingleton()
     {
         Instantiate(Resources.Load<GameObject>(SIMPLE_INSTANCE_RESOURCE_PATH));
