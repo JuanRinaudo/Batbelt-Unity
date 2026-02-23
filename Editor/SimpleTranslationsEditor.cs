@@ -176,6 +176,7 @@ public class SimpleTranslationsEditor : EditorWindow
             Debug.Log("Download completed");
                 
             downloadClient = null;
+            SimpleTranslations.Instance.SetLanguage(SimpleTranslations.Instance.currentLanguage);
             AssetDatabase.Refresh();
         });
     }
