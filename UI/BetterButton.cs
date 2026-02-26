@@ -21,8 +21,7 @@ public class BetterButton : Button
     {
         base.DoStateTransition(state, instant);
 
-        if (_highlightTween.IsAlive)
-            _highlightTween.Cancel();
+        _highlightTween.TryCancel();
         
         if (SelectedHighlight != null && state != SelectionState.Selected)
         {
@@ -63,10 +62,8 @@ public class BetterButton : Button
 
     void TransitionGraphicsColors(bool instant, Color targetColor)
     {
-        if (_labelTween.IsAlive)
-            _labelTween.Cancel();
-        if(_iconTween.IsAlive)
-            _iconTween.Cancel();
+        _labelTween.TryCancel();
+        _iconTween.TryCancel();
         
         if (instant)
         {

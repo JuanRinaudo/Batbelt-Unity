@@ -40,10 +40,8 @@ public class BetterToggle : Toggle
 
     void TransitionGraphicsColors(bool instant, Color targetColor)
     {
-        if (_labelTween.IsAlive)
-            _labelTween.Cancel();
-        if(_iconTween.IsAlive)
-            _iconTween.Cancel();
+        _labelTween.TryCancel();
+        _iconTween.TryCancel();
         
         if (instant)
         {
