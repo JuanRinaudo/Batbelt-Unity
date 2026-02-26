@@ -43,7 +43,7 @@ public class LocalizeTMPText : MonoBehaviour
         }
         else
         {
-            BatCore.LogError($"SimpleTranslations - No text set on LocalizeTMPText {gameObject.name}");
+            BatCore.LogWarning($"SimpleTranslations - No text set on LocalizeTMPText {gameObject.name}");
         }
     }
 

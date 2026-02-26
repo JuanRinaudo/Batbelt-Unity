@@ -1,5 +1,5 @@
 using TMPro;
-using AuraTween;
+using SimpleTweens;
 using UnityEngine;
 using UnityEngine.UI;
 

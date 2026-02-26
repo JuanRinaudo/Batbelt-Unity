@@ -37,6 +37,14 @@ public class SpriteManager : MonoBehaviour
     private const string CODEGEN_KEYS_NAME = "SpriteMapKeys.cs";
     private const string SPRITE_MAP_PATH = "SpriteManager/SpriteMap";
 
+#if UNITY_EDITOR
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void Restart()
+    {
+	    instance = null;
+    }
+#endif
+	
 	private static void Initialize()
 	{
 		Type spriteManagerType = typeof(SpriteManager);

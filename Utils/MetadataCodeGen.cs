@@ -26,38 +26,38 @@ public static class MetadataCodeGen
         GenerateScenesFile();
     }
 
-    public static StreamWriter StartCodegenMetaWritter(string filePath, string fileName)
+    public static StreamWriter StartCodegenMetaWriter(string filePath, string fileName)
     {
         BatUtils.CheckAndGenerateAssetsFolder(filePath);
 
-        StreamWriter writter = new StreamWriter(filePath + fileName + ".cs");
-        writter.NewLine = Environment.NewLine;
-        writter.WriteLine("// NOTE(CodeGen): This file was generated automaticaly, do not edit by hand");
-        writter.WriteLine("");
-        writter.WriteLine("");
-        writter.WriteLine("public static class " + fileName + " {");
+        StreamWriter writer = new StreamWriter($"{filePath}{fileName}.cs");
+        writer.NewLine = System.Environment.NewLine;
+        writer.WriteLine("// NOTE(CodeGen): This file was generated automaticaly, do not edit by hand");
+        writer.WriteLine("");
+        writer.WriteLine("");
+        writer.WriteLine($"public static class {fileName} {{");
 
-        return writter;
+        return writer;
     }
 
     [MenuItem("Batbelt/Codegen/Generate Layer File")]
     public static void GenerateLayerFile()
     {
-        StreamWriter writter = StartCodegenMetaWritter(codegenFolderPath, "UnityLayers");
+        StreamWriter writer = StartCodegenMetaWriter(codegenFolderPath, "UnityLayers");
 
         string[] layers = InternalEditorUtility.layers;
         for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
         {
             string layerName = layers[layerIndex];
             string formattedName = BatUtils.NormalizeKey(layerName).ToUpper();
-            writter.WriteLine("    public const string " + formattedName + " = \"" + layerName + "\";");
+            writer.WriteLine($"    public const string {formattedName} = \"{layerName}\";");
             int layerInt = LayerMask.NameToLayer(layerName);
-            writter.WriteLine("    public const int " + formattedName + "_INDEX = " + layerInt.ToString() + ";");
+            writer.WriteLine($"    public const int {formattedName}_INDEX = {layerInt};");
             int layerMask = LayerMask.GetMask(layerName);
-            writter.WriteLine("    public const int " + formattedName + "_MASK = " + layerMask.ToString() + ";");
+            writer.WriteLine($"    public const int {formattedName}_MASK = {layerMask};");
         }
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
 
         AssetDatabase.Refresh();
     }
@@ -65,18 +65,18 @@ public static class MetadataCodeGen
     [MenuItem("Batbelt/Codegen/Generate Sorting Layer File")]
     public static void GenerateSortingLayerFile()
     {
-        StreamWriter writter = StartCodegenMetaWritter(codegenFolderPath, "UnitySortingLayers");
+        StreamWriter writer = StartCodegenMetaWriter(codegenFolderPath, "UnitySortingLayers");
 
         for(int layerIndex = 0; layerIndex < SortingLayer.layers.Length; ++layerIndex)
         {
             SortingLayer sortingLayer = SortingLayer.layers[layerIndex];
             string formattedName = BatUtils.NormalizeKey(sortingLayer.name).ToUpper();
-            writter.WriteLine("    public const string " + formattedName + " = \"" + sortingLayer.name + "\";");
-            writter.WriteLine("    public const int " + formattedName + "_ID = " + sortingLayer.id + ";");
-            writter.WriteLine("    public const int " + formattedName + "_VALUE = " + sortingLayer.value + ";");
+            writer.WriteLine($"    public const string {formattedName} = \"{sortingLayer.name}\";");
+            writer.WriteLine($"    public const int {formattedName}_ID = {sortingLayer.id};");
+            writer.WriteLine($"    public const int {formattedName}_VALUE = {sortingLayer.value};");
         }
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
 
         AssetDatabase.Refresh();
     }
@@ -84,15 +84,15 @@ public static class MetadataCodeGen
     [MenuItem("Batbelt/Codegen/Generate Tag File")]
     public static void GenerateTagsFile()
     {
-        StreamWriter writter = StartCodegenMetaWritter(codegenFolderPath, "UnityTags");
+        StreamWriter writer = StartCodegenMetaWriter(codegenFolderPath, "UnityTags");
 
         string[] layers = InternalEditorUtility.tags;
         for (int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
         {
-            writter.WriteLine("    public const string " + BatUtils.NormalizeKey(layers[layerIndex]).ToUpper() + " = \"" + layers[layerIndex] + "\";");
+            writer.WriteLine($"    public const string {BatUtils.NormalizeKey(layers[layerIndex]).ToUpper()} = \"{layers[layerIndex]}\";");
         }
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
 
         AssetDatabase.Refresh();
     }
@@ -109,14 +109,14 @@ public static class MetadataCodeGen
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
             
             string filename = BatUtils.NormalizeKey(animatorController.name);
-            StreamWriter writter = StartCodegenMetaWritter(filePath, filename + "Animator");
+            StreamWriter writer = StartCodegenMetaWriter(filePath, $"{filename}Animator");
 
             UnityEngine.AnimatorControllerParameter[] parameters = animatorController.parameters;
             for (int parameterIndex = 0; parameterIndex < parameters.Length; ++parameterIndex)
             {
                 string animationParameterName = BatUtils.NormalizeKey(parameters[parameterIndex].name);
-                writter.WriteLine("    public const string " + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = \"" + parameters[parameterIndex].name + "\";");
-                writter.WriteLine("    public const int HASH_" + animationParameterName.ToUpper() + "_" + parameters[parameterIndex].type.ToString().ToUpper() + " = " + parameters[parameterIndex].nameHash + ";");
+                writer.WriteLine($"    public const string {animationParameterName.ToUpper()}_{parameters[parameterIndex].type.ToString().ToUpper()} = \"{parameters[parameterIndex].name}\";");
+                writer.WriteLine($"    public const int HASH_{animationParameterName.ToUpper()}_{parameters[parameterIndex].type.ToString().ToUpper()} = {parameters[parameterIndex].nameHash};");
             }
             UnityEditor.Animations.AnimatorControllerLayer[] layers = animatorController.layers;
             for(int layerIndex = 0; layerIndex < layers.Length; ++layerIndex)
@@ -127,12 +127,12 @@ public static class MetadataCodeGen
                 {
                     UnityEditor.Animations.AnimatorState currentState = states[stateIndex].state;
                     string keyName = BatUtils.NormalizeKey(currentState.name).ToUpper();
-                    writter.WriteLine("    public const string " + keyName + " = \"" + currentState.name + "\";");
-                    writter.WriteLine("    public const int " + keyName + "_HASH = " + currentState.nameHash + ";");
+                    writer.WriteLine($"    public const string {keyName} = \"{currentState.name}\";");
+                    writer.WriteLine($"    public const int {keyName}_HASH = {currentState.nameHash};");
                 }
             }
-            writter.WriteLine("}");
-            writter.Close();
+            writer.WriteLine("}");
+            writer.Close();
         }
 
         AssetDatabase.Refresh();
@@ -159,7 +159,7 @@ public static class MetadataCodeGen
             }
         }
         
-        StreamWriter writter = StartCodegenMetaWritter(codegenFolderPath, "UnityResources");
+        StreamWriter writer = StartCodegenMetaWriter(codegenFolderPath, "UnityResources");
 
         while (folderStack.Count > 0)
         {
@@ -186,7 +186,7 @@ public static class MetadataCodeGen
 
                         folderStack.Push(entryFullPath);
                         // #NOTE (Juan): A final / is added to the prefix for easy path append
-                        writter.WriteLine("    public const string PREFIX_" + key + " = \"" + value + "/\";");
+                        writer.WriteLine($"    public const string PREFIX_{key} = \"{value}/\";");
                     }
                     else
                     {
@@ -241,14 +241,14 @@ public static class MetadataCodeGen
                         //{
                         //    Debug.Log("File not added: " + entryFullPath);
                         //}
-                        writter.WriteLine("    public const string " + keyPrefix + key.ToUpper() + " = \"" + value + "\";");
+                        writer.WriteLine($"    public const string {keyPrefix}{key.ToUpper()} = \"{value}\";");
                     }
                 }
             }
         }
 
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
 
         AssetDatabase.Refresh();
     }
@@ -256,7 +256,7 @@ public static class MetadataCodeGen
     [MenuItem("Batbelt/Codegen/Generate Scenes File")]
     public static void GenerateScenesFile()
     {
-        StreamWriter writter = StartCodegenMetaWritter(codegenFolderPath, "UnityScenes");
+        StreamWriter writer = StartCodegenMetaWriter(codegenFolderPath, "UnityScenes");
 
         string[] scenesGUID = AssetDatabase.FindAssets("t: Scene");
         for (int sceneIndex = 0; sceneIndex < scenesGUID.Length; ++sceneIndex)
@@ -269,11 +269,11 @@ public static class MetadataCodeGen
             SceneAsset scene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
             if(scene != null)
             {
-                writter.WriteLine("    public const string " + BatUtils.NormalizeKey(path).ToUpper() + " = \"" + scene.name + "\";");
+                writer.WriteLine($"    public const string {BatUtils.NormalizeKey(path).ToUpper()} = \"{scene.name}\";");
             }
         }
-        writter.WriteLine("}");
-        writter.Close();
+        writer.WriteLine("}");
+        writer.Close();
 
         AssetDatabase.Refresh();
     }

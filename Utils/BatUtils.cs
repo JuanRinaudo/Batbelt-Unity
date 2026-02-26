@@ -7,6 +7,7 @@ using System.Reflection;
 using System.ComponentModel;
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 #if NEWTONSOFT_ENABLED
 using Newtonsoft.Json;
@@ -29,7 +30,7 @@ public static class BatUtils
 
     private readonly static char[] DEFINE_SEPARATOR = new char[] { ';', ',', ' ' };
 
-    static T Deserialize<T>(string jsonText)
+    public static T Deserialize<T>(string jsonText)
     {  
 #if NEWTONSOFT_ENABLED
         return JsonConvert.DeserializeObject<T>(jsonText);
@@ -38,7 +39,7 @@ public static class BatUtils
 #endif
     }
 
-    static string Serialize<T>(T target)
+    public static string Serialize<T>(T target)
     {  
 #if NEWTONSOFT_ENABLED
         return JsonConvert.SerializeObject(target);
@@ -123,21 +124,141 @@ public static class BatUtils
 
     public static void SavePersistentData<T>(T input, string name)
     {
-        StreamWriter writter = new StreamWriter(GetUniquePersistentDataPath() + "/" + name + JSON_EXTENSION);
-        writter.Write(Serialize(input));
-        writter.Close();
+        StreamWriter writer = new StreamWriter(GetUniquePersistentDataPath() + "/" + name + JSON_EXTENSION);
+        writer.Write(Serialize(input));
+        writer.Close();
     }
 
     public static void SavePersistentData(string text, string filename)
     {
-        StreamWriter writter = new StreamWriter(GetUniquePersistentDataPath() + "/" + filename);
-        writter.Write(text);
-        writter.Close();
+        StreamWriter writer = new StreamWriter(GetUniquePersistentDataPath() + "/" + filename);
+        writer.Write(text);
+        writer.Close();
     }
 
     public static void SavePersistentData(byte[] bytes, string filename)
     {
         File.WriteAllBytes(GetUniquePersistentDataPath() + "/" + filename, bytes);
+    }
+
+    public static string ChangingDots(int dotCount = 3)
+    {
+        return new string('.', Mathf.FloorToInt((float)Time.time) % (dotCount + 1));
+    }
+    
+    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshPro text, string textFormat = "{0}", int dotCount = 3, float dotSpeed = 1)
+    {
+        var wait = new WaitForEndOfFrame();
+
+        dotCount += 1;
+
+        float time = 0;
+        var lastDots = -1;
+        while(true)
+        {
+            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
+            if(currentDots != lastDots) { text.text = string.Format(textFormat, new string('.', currentDots)); }
+            lastDots = currentDots;
+            time = (time + Time.deltaTime * dotSpeed) % dotCount;
+            yield return wait;
+        }
+    }
+
+    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshProUGUI text, string textFormat = "{0}", int dotCount = 3, float dotSpeed = 1)
+    {
+        var wait = new WaitForEndOfFrame();
+
+        dotCount += 1;
+
+        float time = 0;
+        var lastDots = -1;
+        while(true)
+        {
+            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
+            if(currentDots != lastDots) { text.text = string.Format(textFormat, new string('.', currentDots)); }
+            lastDots = currentDots;
+            time = (time + Time.deltaTime * dotSpeed) % dotCount;
+            yield return wait;
+        }
+    }
+
+    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshProUGUI text, string textFormat, string prefix, string postfix, int dotCount = 3, float dotSpeed = 1)
+    {
+        var wait = new WaitForEndOfFrame();
+
+        dotCount += 1;
+
+        float time = 0;
+        var lastDots = -1;
+        while(true)
+        {
+            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
+            if(currentDots != lastDots) { text.text = prefix + string.Format(textFormat, new string('.', currentDots)) + postfix; }
+            lastDots = currentDots;
+            time = (time + Time.deltaTime * dotSpeed) % dotCount;
+            yield return wait;
+        }
+    }
+
+    public static Texture2D ScreenshotCamera(Camera targetCamera, int width, int height)
+    {
+        RenderTexture renderTexture = new RenderTexture(width, height, 24);
+        targetCamera.targetTexture = renderTexture;
+
+        Texture2D screenshot = new Texture2D(width, height, TextureFormat.RGB24, false);
+
+        targetCamera.Render();
+        RenderTexture.active = renderTexture;
+        screenshot.ReadPixels(new Rect(0, 0, width, height), 0, 0);
+        screenshot.Apply();
+
+        targetCamera.targetTexture = null;
+        RenderTexture.active = null;
+        Object.Destroy(renderTexture);
+
+        return screenshot;
+    }
+    
+    public static void SavePersistentTextureAsPNG(Texture2D texture, string filepath)
+    {
+        byte[] bytes = texture.EncodeToPNG();
+        string path = Path.Combine(Application.persistentDataPath, filepath);
+        File.WriteAllBytes(path, bytes);
+    }
+    
+    public static void SavePersistentTextureAsJPG(Texture2D texture, string filepath, int quality = 75)
+    {
+        byte[] bytes = texture.EncodeToJPG(quality);
+        string path = Path.Combine(Application.persistentDataPath, filepath);
+        File.WriteAllBytes(path, bytes);
+    }
+    
+    public static Texture2D TryLoadPersistentPNGAsTexture(string filepath)
+    {
+        string path = Path.Combine(Application.persistentDataPath, filepath);
+        if (File.Exists(path))
+        {
+            byte[] bytes = File.ReadAllBytes(path);
+            Texture2D output = new Texture2D(2, 2);
+            output.LoadImage(bytes);
+            return output;
+        }
+
+        return null;
+    }
+    
+    public static Texture2D TryLoadPersistentJPGAsTexture(string filepath)
+    {
+        string path = Path.Combine(Application.persistentDataPath, filepath);
+        if (File.Exists(path))
+        {
+            byte[] bytes = File.ReadAllBytes(path);
+            Texture2D output = new Texture2D(2, 2);
+            output.LoadImage(bytes);
+            return output;
+        }
+
+        return null;
     }
 
 #if UNITY_EDITOR
@@ -166,9 +287,9 @@ public static class BatUtils
         string pathPrefix = runtimeConfig ? SAVE_PATH_RUNTIME_PREFIX : SAVE_PATH_PREFIX;
 
         CheckAndGenerateAssetsFolder(pathPrefix);
-        StreamWriter writter = new StreamWriter(pathPrefix + typeof(T).Name + JSON_EXTENSION);     
-        writter.Write(Serialize(config));
-        writter.Close();
+        StreamWriter writer = new StreamWriter(pathPrefix + typeof(T).Name + JSON_EXTENSION);     
+        writer.Write(Serialize(config));
+        writer.Close();
 
         if(runtimeConfig)
         {
@@ -417,65 +538,12 @@ public static class BatUtils
         
         return text;
     }
-#endif
-
-    public static string ChangingDots(int dotCount = 3)
-    {
-        return new string('.', Mathf.FloorToInt((float)Time.time) % (dotCount + 1));
-    }
     
-    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshPro text, string textFormat = "{0}", int dotCount = 3, float dotSpeed = 1)
+    public static void FocusInspector()
     {
-        var wait = new WaitForEndOfFrame();
-
-        dotCount += 1;
-
-        float time = 0;
-        var lastDots = -1;
-        while(true)
-        {
-            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
-            if(currentDots != lastDots) { text.text = string.Format(textFormat, new string('.', currentDots)); }
-            lastDots = currentDots;
-            time = (time + Time.deltaTime * dotSpeed) % dotCount;
-            yield return wait;
-        }
+        var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
+        if (inspectorType != null)
+            EditorWindow.FocusWindowIfItsOpen(inspectorType);
     }
-
-    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshProUGUI text, string textFormat = "{0}", int dotCount = 3, float dotSpeed = 1)
-    {
-        var wait = new WaitForEndOfFrame();
-
-        dotCount += 1;
-
-        float time = 0;
-        var lastDots = -1;
-        while(true)
-        {
-            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
-            if(currentDots != lastDots) { text.text = string.Format(textFormat, new string('.', currentDots)); }
-            lastDots = currentDots;
-            time = (time + Time.deltaTime * dotSpeed) % dotCount;
-            yield return wait;
-        }
-    }
-
-    public static IEnumerator AnimatedDotsCoroutine(TMPro.TextMeshProUGUI text, string textFormat, string prefix, string postfix, int dotCount = 3, float dotSpeed = 1)
-    {
-        var wait = new WaitForEndOfFrame();
-
-        dotCount += 1;
-
-        float time = 0;
-        var lastDots = -1;
-        while(true)
-        {
-            var currentDots =  Mathf.FloorToInt((float)time) % dotCount;
-            if(currentDots != lastDots) { text.text = prefix + string.Format(textFormat, new string('.', currentDots)) + postfix; }
-            lastDots = currentDots;
-            time = (time + Time.deltaTime * dotSpeed) % dotCount;
-            yield return wait;
-        }
-    }
-
+#endif
 }
