@@ -18,6 +18,17 @@ public static class ObjectExtensions
 #endif
     }
     
+    public static void DeepCopy<T>(this T self, T target)
+    {
+#if NEWTONSOFT_ENABLED
+        var serialized = JsonConvert.SerializeObject(target);
+        return JsonConvert.OverrideObject<T>(serialized);
+#else
+        var serialized = JsonUtility.ToJson(target);
+        JsonUtility.FromJsonOverwrite(serialized, self);
+#endif
+    }
+    
     public static T GetFieldValue<T>(this object obj, string name) {
         var fieldInfo = obj.GetType().GetField(name, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
         return fieldInfo != null ? (T)fieldInfo?.GetValue(obj) : default(T);

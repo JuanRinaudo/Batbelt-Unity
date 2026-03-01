@@ -6,7 +6,10 @@ using System.Globalization;
 using System.Reflection;
 using System.ComponentModel;
 using System.Collections.Generic;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 using Object = UnityEngine.Object;
 
 #if NEWTONSOFT_ENABLED
@@ -544,6 +547,86 @@ public static class BatUtils
         var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
         if (inspectorType != null)
             EditorWindow.FocusWindowIfItsOpen(inspectorType);
+    }
+    public static T GetWindowNextToInspector<T>(string title) where T : EditorWindow
+    {
+        var inspectorType = typeof(Editor).Assembly.GetType("UnityEditor.InspectorWindow");
+        if (inspectorType != null)
+        {
+            var targetWindow = EditorWindow.GetWindow<T>(title, true, inspectorType);
+            return targetWindow;
+        }
+
+        return EditorWindow.GetWindow<T>(title);
+    }
+    
+    public static void AddToAddressables(string assetPath, string groupName)
+    {
+        var settings = AddressableAssetSettingsDefaultObject.Settings;
+        if (settings == null)
+        {
+            Debug.LogError("AddressableAssetSettings not found.");
+            return;
+        }
+
+        var group = settings.FindGroup(groupName);
+        if (group == null)
+        {
+            group = settings.CreateGroup(
+                groupName,
+                false,
+                false,
+                false,
+                new List<AddressableAssetGroupSchema>
+                {
+                    settings.DefaultGroup.Schemas[0],
+                    settings.DefaultGroup.Schemas[1]
+                }
+            );
+        }
+
+        var guid = AssetDatabase.AssetPathToGUID(assetPath);
+        var entry = settings.CreateOrMoveEntry(guid, group);
+        entry.address = assetPath;
+
+        settings.SetDirty(AddressableAssetSettings.ModificationEvent.EntryMoved, entry, true);
+        AssetDatabase.SaveAssets();
+    }
+    
+    public static AssetReference GetAddressableReferenceFromPath(string assetPath)
+    {
+        string guid = AssetDatabase.AssetPathToGUID(assetPath);
+        if (string.IsNullOrEmpty(guid))
+            return null;
+
+        AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+
+        if (settings == null)
+            return null;
+
+        AddressableAssetEntry entry = settings.FindAssetEntry(guid);
+        if (entry == null)
+            return null;
+
+        return new AssetReference(guid);
+    }
+    
+    public static AssetReferenceT<T> GetAddressableReferenceFromPath<T>(string assetPath) where T : Object
+    {
+        string guid = AssetDatabase.AssetPathToGUID(assetPath);
+        if (string.IsNullOrEmpty(guid))
+            return null;
+
+        AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+
+        if (settings == null)
+            return null;
+
+        AddressableAssetEntry entry = settings.FindAssetEntry(guid);
+        if (entry == null)
+            return null;
+
+        return new AssetReferenceT<T>(guid);
     }
 #endif
 }

@@ -37,20 +37,29 @@ public class SimpleTranslationsEditor : EditorWindow
         
         string[] languages = null;
         Dictionary<string, string> values = new Dictionary<string, string>();
-        if(downloadClient == null) {
-            string translationText = SimpleTranslations.GetTranslationsFile();
-
-            if (translationText != null && translationText != "")
+        try
+        {
+            if (!SimpleTranslations.Instance.LoadFailed && downloadClient == null)
             {
-                string[] lines = translationText.Split('\n');
-                languages = lines[0].Trim(SimpleTranslations.charsToTrim).Split('\t');
+                string translationText = SimpleTranslations.GetTranslationsFile();
 
-                for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+                if (!string.IsNullOrEmpty(translationText))
                 {
-                    string[] lineValues = lines[lineIndex].Split('\t');
-                    values.Add(lineValues[0], lineValues[selectedLanguage]);
+                    string[] lines = translationText.Split('\n');
+                    languages = lines[0].Trim(SimpleTranslations.charsToTrim).Split('\t');
+
+                    for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+                    {
+                        string[] lineValues = lines[lineIndex].Split('\t');
+                        values.Add(lineValues[0], lineValues[selectedLanguage]);
+                    }
                 }
             }
+        }
+        catch (System.Exception e)
+        {
+            SimpleTranslations.Instance.LoadFailed = true;
+            throw;
         }
 
         EditorGUILayout.Space(8);
@@ -99,12 +108,10 @@ public class SimpleTranslationsEditor : EditorWindow
         EditorGUILayout.Space(8);
         
         config.filename = EditorGUILayout.TextField("File name", config.filename);
-
-        config.useResources = EditorGUILayout.Toggle("Use Resources", config.useResources);
-        if(!config.useResources)
-        {
+        
+        config.fileMethod = (SimpleTranslationsConfig.FileMethod)EditorGUILayout.EnumPopup("File Method", config.fileMethod);
+        if(config.fileMethod == SimpleTranslationsConfig.FileMethod.File)
             editorConfig.downloadFileFolder = EditorGUILayout.TextField("Download file folder", editorConfig.downloadFileFolder);
-        }
 
         if (EditorGUI.EndChangeCheck())
         {
@@ -148,9 +155,13 @@ public class SimpleTranslationsEditor : EditorWindow
         }
 
         var downloadFolder = "";
-        if(config.useResources)
+        if(config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
         {
             downloadFolder = "Assets/Batbelt/Resources/Batbelt/";
+        }
+        if(config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
+        {
+            downloadFolder = "Assets/VNGame/Addressables/";
         }
         else
         {
@@ -176,6 +187,7 @@ public class SimpleTranslationsEditor : EditorWindow
             Debug.Log("Download completed");
                 
             downloadClient = null;
+            SimpleTranslations.Instance.LoadFailed = false;
             SimpleTranslations.Instance.SetLanguage(SimpleTranslations.Instance.currentLanguage);
             AssetDatabase.Refresh();
         });
@@ -188,7 +200,7 @@ public class SimpleTranslationsEditor : EditorWindow
             config = new SimpleTranslationsConfig();
             config.inited = true;
             config.filename = "";
-            config.useResources = false;
+            config.fileMethod = SimpleTranslationsConfig.FileMethod.Resources;
             SaveConfig();
         }
 

@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Globalization;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -29,6 +31,8 @@ public class SimpleTranslations
     [HideInInspector] public int currentLanguageIndex;
     private Dictionary<string, int> languageColumn = new Dictionary<string, int>();
     private Dictionary<string, string> languageValues = new Dictionary<string, string>();
+    
+    public bool LoadFailed = false;
 
     public string systemLanguage;
     public string defaultLanguage = "en";
@@ -36,7 +40,7 @@ public class SimpleTranslations
     private SimpleTranslationsConfig config;
 
     public static char[] charsToTrim = { ' ', '\r', '\n', '\t' };
-
+    
     public static Action LanguageChanged;
     
 #if UNITY_EDITOR
@@ -169,6 +173,14 @@ public class SimpleTranslations
     public static string GetTranslationsFile()
     {
         string translationText = "";
+        
+#if UNITY_EDITOR
+        // Use reflection to check if SimpleTranslationsFallback has a public static string field called FallbackBaseText, and if it does, use that as the base translation text
+        Type fallbackType = typeof(SimpleTranslationsFallback);
+        var fallbackField = fallbackType.GetField("FallbackBaseText", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+        if (fallbackField != null && fallbackField.FieldType == typeof(string))
+            translationText = (string)fallbackField.GetValue(null);
+#endif
 
         SimpleTranslationsConfig config;
 #if UNITY_EDITOR
@@ -180,7 +192,7 @@ public class SimpleTranslations
         {
             if (!BatUtils.LoadConfig(out config, true))
             {
-                Debug.LogError("Translation config file not found, make sure this is setted up correctly");
+                Debug.LogError("Translation config file not found, make sure this is set up correctly");
                 return "";
             }
         }
@@ -188,41 +200,84 @@ public class SimpleTranslations
         config = Instance.config;
 #endif
 
-        if(config.useResources)
+        try
         {
-            int formatDot = config.filename.LastIndexOf(".");
-            string filename = formatDot > 0 ? config.filename.Substring(0, formatDot) : config.filename;
+            if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
+            {
+                var targetFilename = config.filename;
+                int formatDot = targetFilename.LastIndexOf(".");
+                string filename = formatDot > 0 ? targetFilename.Substring(0, formatDot) : targetFilename;
 
-            TextAsset textAssets = Resources.Load<TextAsset>("Batbelt/" + filename);
-            try {
-                translationText = textAssets.text;
-            }
-            catch
-            {
-                Debug.LogError("Translation resource not found, check the filename");
-            }
-        }
-        else
-        {
-#if UNITY_EDITOR
-            SimpleTranslationsEditorConfig configEditor;
-            if (BatUtils.LoadConfig(out configEditor, false))
-            {
-                try {
-                    StreamReader reader = new StreamReader(configEditor.downloadFileFolder + "/" + config.filename);
-                    translationText = reader.ReadToEnd();
-                    reader.Close();
+                TextAsset textAssets = Resources.Load<TextAsset>("Batbelt/" + filename);
+                try
+                {
+                    translationText = textAssets.text;
                 }
                 catch
                 {
-                    Debug.LogError("Translation file not found, check the path and if the file exists");
+                    Debug.LogWarning("Translation resource not found, check the filename");
+                    throw;
                 }
             }
+            else if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
+            {
+                var targetFilename = config.filename;
+
+                var locationsHandle = Addressables.LoadResourceLocationsAsync(targetFilename);
+                locationsHandle.WaitForCompletion();
+
+                bool keyExists = locationsHandle.Status == AsyncOperationStatus.Succeeded &&
+                                 locationsHandle.Result != null &&
+                                 locationsHandle.Result.Count > 0; 
+
+                Addressables.Release(locationsHandle);
+
+                if (!keyExists)
+                {
+                    Debug.LogWarning($"Invalid addressable key: {targetFilename}");
+                    throw new Exception($"Invalid addressable key: {targetFilename}");
+                }
+
+                var loadHandle = Addressables.LoadAssetAsync<TextAsset>(targetFilename);
+                loadHandle.WaitForCompletion();
+
+                if (loadHandle.Status == AsyncOperationStatus.Succeeded)
+                    translationText = loadHandle.Result.text;
+                else
+                    Debug.LogWarning($"Failed to load addressable: {targetFilename}");
+
+                Addressables.Release(loadHandle);
+            }
+            else
+            {
+#if UNITY_EDITOR
+                SimpleTranslationsEditorConfig configEditor;
+                if (BatUtils.LoadConfig(out configEditor, false))
+                {
+                    try
+                    {
+                        var targetFilename = config.filename;
+                        StreamReader reader = new StreamReader(configEditor.downloadFileFolder + "/" + targetFilename);
+                        translationText = reader.ReadToEnd();
+                        reader.Close();
+                    }
+                    catch
+                    {
+                        Debug.LogWarning("Translation file not found, check the path and if the file exists");
+                    }
+                }
 #else
-            StreamReader reader = new StreamReader(BatUtils.GetUniquePersistentDataPath() + "/" + config.filename);
-            translationText = reader.ReadToEnd();
-            reader.Close();
+                var targetFilename = config.filename;
+                StreamReader reader = new StreamReader(BatUtils.GetUniquePersistentDataPath() + "/" + targetFilename);
+                translationText = reader.ReadToEnd();
+                reader.Close();
 #endif
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning(e);
+            throw;
         }
 
         return translationText;
@@ -249,10 +304,20 @@ public class SimpleTranslations
 
 public struct SimpleTranslationsConfig
 {
+    public enum FileMethod
+    {
+        Resources,
+        File,
+        Addressables,
+        // MultipleResources, // TODO: Implement split language support
+        // MultipleFiles,
+        // MultipleAddressables
+    }
+    
     public bool inited;
 
     public string filename;
-    public bool useResources;
+    public FileMethod fileMethod;
 }
 
 #if UNITY_EDITOR

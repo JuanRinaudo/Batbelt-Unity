@@ -152,6 +152,25 @@ public class SimpleAudio : MonoBehaviour
             targetSource.volume = volume;
         }
     }
+
+    public void StopMusic(float transitionDuration = -1f)
+    {
+        var audioSource = _altMusicPlaying ? altMusicSource : musicSource;
+        _musicTween.TryCancel();
+        _altMusicTween.TryCancel();
+        
+        if (transitionDuration > 0f)
+        {
+            _musicTween = audioSource.TwVolume(0f, transitionDuration, Easer.Linear).AddOnComplete(() =>
+            {
+                audioSource.Stop();
+            });
+        }
+        else
+        {
+            audioSource.Stop();
+        }
+    }
     
     public void SetMusicVolume(float volume = 1.0f, float duration = -1f)
     {
@@ -161,6 +180,12 @@ public class SimpleAudio : MonoBehaviour
             _musicTween = audioSource.TwVolume(volume, duration, Easer.Linear);
         else
             audioSource.volume = volume;
+    }
+
+    public AudioClip GetCurrentMusicClip()
+    {
+        var audioSource = _altMusicPlaying ? altMusicSource : musicSource;
+        return audioSource.clip;
     }
 
     void InternalSetMasterVolume(float volume)

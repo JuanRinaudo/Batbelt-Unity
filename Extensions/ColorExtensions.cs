@@ -21,4 +21,19 @@ public static class ColorExtensions
     {
         return new Color(color.r, color.g, color.b, alpha);
     }
+    
+    public static string ToHex(this Color color)
+    {
+        Color32 color32 = color;
+        return $"#{color32.r:X2}{color32.g:X2}{color32.b:X2}{color32.a:X2}";
+    }
+    
+    public static string ToHex(this Color? color)
+    {
+        if (!color.HasValue)
+            color = Color.white;
+        
+        Color32 color32 = color.Value;
+        return $"#{color32.r:X2}{color32.g:X2}{color32.b:X2}{color32.a:X2}";
+    }
 }
