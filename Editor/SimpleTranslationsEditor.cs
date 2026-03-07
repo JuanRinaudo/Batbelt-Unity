@@ -159,7 +159,7 @@ public class SimpleTranslationsEditor : EditorWindow
         {
             downloadFolder = "Assets/Batbelt/Resources/Batbelt/";
         }
-        if(config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
+        else if(config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
         {
             downloadFolder = "Assets/VNGame/Addressables/";
         }
