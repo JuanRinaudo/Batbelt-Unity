@@ -128,7 +128,16 @@ public class SimpleAudio : MonoBehaviour
         var targetSource = _altMusicPlaying ? musicSource : altMusicSource;
 
         if (currentSource.clip == clip)
+        {
+            if (volume != currentSource.volume)
+            {
+                if (transitionDuration > 0f)
+                    currentSource.TwVolume(volume, transitionDuration, Easer.Linear);
+                else
+                    currentSource.volume = volume;
+            }
             return;
+        }
         
         _altMusicPlaying = !_altMusicPlaying;
         
