@@ -12,9 +12,11 @@ public class LocalizeTMP3DTextEditor : Editor {
 
     public override void OnInspectorGUI()
     {
-        if(textKeyOptions == null)
+        if (textKeyOptions == null || textKeyOptions.Length == 0)
         {
-            textKeyOptions = SimpleTranslations.GetTranslationKeys();
+            var keysTask = SimpleTranslations.GetTranslationKeys();
+            keysTask.Wait();
+            textKeyOptions = keysTask.Result;
         }
 
         LocalizeTMP3DText localizeText = (LocalizeTMP3DText)target;

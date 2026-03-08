@@ -23,7 +23,11 @@ public class LocalizedTextField : VisualElement
 
         // Load options once
         if (TextKeyOptions == null || TextKeyOptions.Length == 0)
-            TextKeyOptions = SimpleTranslations.GetTranslationKeys();
+        {
+            var keysTask = SimpleTranslations.GetTranslationKeys();
+            keysTask.Wait();
+            TextKeyOptions = keysTask.Result;
+        }
 
         style.flexDirection = FlexDirection.Column;
         style.marginBottom = 6;

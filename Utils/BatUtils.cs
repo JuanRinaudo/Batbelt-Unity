@@ -6,8 +6,6 @@ using System.Globalization;
 using System.Reflection;
 using System.ComponentModel;
 using System.Collections.Generic;
-using UnityEditor.AddressableAssets;
-using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using Object = UnityEngine.Object;
@@ -19,6 +17,8 @@ using Newtonsoft.Json;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.Build;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 #endif
 
 public static class BatUtils

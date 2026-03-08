@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Globalization;
+using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 #if UNITY_EDITOR
@@ -75,13 +76,13 @@ public class SimpleTranslations
         SetLanguage(languages[languageIndex]);
     }
 
-    public void SetLanguage(string language)
+    public async Task SetLanguage(string language)
     {
         currentLanguage = language;
 
         languageColumn.Clear();
         languageValues.Clear();
-        string translationText = GetTranslationsFile();
+        string translationText = await GetTranslationsFile();
 
         if(translationText != null && translationText != "")
         {
@@ -170,7 +171,7 @@ public class SimpleTranslations
         }
     }
 
-    public static string GetTranslationsFile()
+    public static async Task<string> GetTranslationsFile()
     {
         string translationText = "";
         
@@ -224,7 +225,7 @@ public class SimpleTranslations
                 var targetFilename = config.filename;
 
                 var locationsHandle = Addressables.LoadResourceLocationsAsync(targetFilename);
-                locationsHandle.WaitForCompletion();
+                await locationsHandle.Task;
 
                 bool keyExists = locationsHandle.Status == AsyncOperationStatus.Succeeded &&
                                  locationsHandle.Result != null &&
@@ -239,7 +240,7 @@ public class SimpleTranslations
                 }
 
                 var loadHandle = Addressables.LoadAssetAsync<TextAsset>(targetFilename);
-                loadHandle.WaitForCompletion();
+                await loadHandle.Task;
 
                 if (loadHandle.Status == AsyncOperationStatus.Succeeded)
                     translationText = loadHandle.Result.text;
@@ -284,10 +285,10 @@ public class SimpleTranslations
     }
 
 #if UNITY_EDITOR
-    public static string[] GetTranslationKeys()
+    public static async Task<string[]> GetTranslationKeys()
     {
         List<string> keys = new List<string>();
-        string translationText = GetTranslationsFile();
+        string translationText = await GetTranslationsFile();
         string[] lines = translationText.Split('\n');
 
         for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)

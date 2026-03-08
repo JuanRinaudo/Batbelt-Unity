@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
 
@@ -26,7 +27,7 @@ public class SimpleTranslationsEditor : EditorWindow
         LoadConfig();
     }
 
-    private void OnGUI()
+    private async Task OnGUI()
     {
         if(!editorConfig.inited || !config.inited)
         {
@@ -41,7 +42,7 @@ public class SimpleTranslationsEditor : EditorWindow
         {
             if (!SimpleTranslations.Instance.LoadFailed && downloadClient == null)
             {
-                string translationText = SimpleTranslations.GetTranslationsFile();
+                string translationText = await SimpleTranslations.GetTranslationsFile();
 
                 if (!string.IsNullOrEmpty(translationText))
                 {
@@ -222,7 +223,7 @@ public class SimpleTranslationsEditor : EditorWindow
     }
     
     [MenuItem("Batbelt/Translation/Generate Languages File")]
-    public static void GenerateLanguagesFile()
+    public static async Task GenerateLanguagesFile()
     {
         string folderPath = MetadataCodeGen.codegenFolderPath;
         BatUtils.CheckAndGenerateAssetsFolder(MetadataCodeGen.codegenFolderPath);
@@ -230,7 +231,7 @@ public class SimpleTranslationsEditor : EditorWindow
         StreamWriter writer = new StreamWriter($"{folderPath}TranslationLanguages.cs");
         writer.WriteLine("public class TranslationLanguages {");
 
-        string translationText = SimpleTranslations.GetTranslationsFile();
+        string translationText = await SimpleTranslations.GetTranslationsFile();
         string[] lines = translationText.Split('\n');
         string[] languages = lines[0].Trim(SimpleTranslations.charsToTrim).Split('\t');
 
@@ -247,7 +248,7 @@ public class SimpleTranslationsEditor : EditorWindow
     }
 
     [MenuItem("Batbelt/Translation/Generate Keys File")]
-    public static void GenerateKeysFile()
+    public static async Task GenerateKeysFile()
     {
         string folderPath = MetadataCodeGen.codegenFolderPath;
         BatUtils.CheckAndGenerateAssetsFolder(folderPath);
@@ -255,7 +256,7 @@ public class SimpleTranslationsEditor : EditorWindow
         StreamWriter writer = new StreamWriter($"{folderPath}TranslationKeys.cs");
         writer.WriteLine("public class TranslationKeys {");
         
-        string translationText = SimpleTranslations.GetTranslationsFile();
+        string translationText = await SimpleTranslations.GetTranslationsFile();
         string[] lines = translationText.Split('\n');
 
         for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)

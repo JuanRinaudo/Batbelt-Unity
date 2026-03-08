@@ -23,8 +23,12 @@ public class LocalizedTextEditor : PropertyDrawer
     {
         EditorGUI.BeginProperty(position, label, property);
         
-        if(_textKeyOptions == null)
-            _textKeyOptions = SimpleTranslations.GetTranslationKeys();
+        if (_textKeyOptions == null || _textKeyOptions.Length == 0)
+        {
+            var keysTask = SimpleTranslations.GetTranslationKeys();
+            keysTask.Wait();
+            _textKeyOptions = keysTask.Result;
+        }
 
         var keyProperty = property.FindPropertyRelative("Key");
 

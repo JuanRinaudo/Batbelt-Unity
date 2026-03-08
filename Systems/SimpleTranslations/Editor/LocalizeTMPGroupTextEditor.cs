@@ -14,9 +14,11 @@ public class LocalizeTMPGroupTextEditor : Editor
 
     public override void OnInspectorGUI()
     {
-        if (textKeyOptions == null)
+        if (textKeyOptions == null || textKeyOptions.Length == 0)
         {
-            textKeyOptions = SimpleTranslations.GetTranslationKeys();
+            var keysTask = SimpleTranslations.GetTranslationKeys();
+            keysTask.Wait();
+            textKeyOptions = keysTask.Result;
         }
 
         LocalizeTMPGroupText localizeTextGroup = (LocalizeTMPGroupText)target;

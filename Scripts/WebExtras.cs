@@ -1,4 +1,4 @@
-#if UNITY_WEBGL
+#if UNITY_WEBGL && WEB_EXTRAS_ENABLED
 using UnityEngine;
 using System.Runtime.InteropServices;
 
