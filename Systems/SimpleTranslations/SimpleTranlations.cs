@@ -174,14 +174,6 @@ public class SimpleTranslations
     public static async Task<string> GetTranslationsFile()
     {
         string translationText = "";
-        
-#if UNITY_EDITOR
-        // Use reflection to check if SimpleTranslationsFallback has a public static string field called FallbackBaseText, and if it does, use that as the base translation text
-        Type fallbackType = typeof(SimpleTranslationsFallback);
-        var fallbackField = fallbackType.GetField("FallbackBaseText", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
-        if (fallbackField != null && fallbackField.FieldType == typeof(string))
-            translationText = (string)fallbackField.GetValue(null);
-#endif
 
         SimpleTranslationsConfig config;
 #if UNITY_EDITOR
@@ -193,8 +185,8 @@ public class SimpleTranslations
         {
             if (!BatUtils.LoadConfig(out config, true))
             {
-                Debug.LogError("Translation config file not found, make sure this is set up correctly");
-                return "";
+                Debug.LogError("Translation config file not found, make sure this is set up correctly, moving too fallback");
+                return TryGetFallbackText();
             }
         }
 #else
@@ -278,10 +270,24 @@ public class SimpleTranslations
         catch (Exception e)
         {
             Debug.LogWarning(e);
-            throw;
+            
+            return TryGetFallbackText();
         }
 
         return translationText;
+    }
+
+    static string TryGetFallbackText()
+    {
+        // Use reflection to check if SimpleTranslationsFallback has a public static string field called FallbackBaseText, and if it does, use that as the base translation text
+        Type fallbackType = typeof(SimpleTranslationsFallback);
+        var fallbackField = fallbackType.GetField("FallbackBaseText", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static);
+        if (fallbackField != null && fallbackField.FieldType == typeof(string))
+        {
+            return (string)fallbackField.GetValue(null);
+        }
+
+        return "";
     }
 
 #if UNITY_EDITOR
