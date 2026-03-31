@@ -22,12 +22,12 @@ public class SimpleTranslationsEditor : EditorWindow
     [MenuItem("Batbelt/Translation/Config")]
     public static void CreateWindow()
     {
-        SimpleTranslationsEditor simpleTranslations = (SimpleTranslationsEditor)GetWindow(typeof(SimpleTranslationsEditor));
+        SimpleTranslationsEditor simpleTranslations = GetWindow<SimpleTranslationsEditor>();
 
         LoadConfig();
     }
 
-    private async Task OnGUI()
+    private void OnGUI()
     {
         if(!editorConfig.inited || !config.inited)
         {
@@ -42,7 +42,9 @@ public class SimpleTranslationsEditor : EditorWindow
         {
             if (!SimpleTranslations.Instance.LoadFailed && downloadClient == null)
             {
-                string translationText = await SimpleTranslations.GetTranslationsFile();
+                var translationTask = SimpleTranslations.GetTranslationsFile();
+                translationTask.Wait();
+                string translationText = translationTask.Result;
 
                 if (!string.IsNullOrEmpty(translationText))
                 {
