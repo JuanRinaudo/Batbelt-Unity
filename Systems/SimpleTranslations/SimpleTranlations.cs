@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Globalization;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -195,6 +196,32 @@ public class SimpleTranslations
 
         try
         {
+#if UNITY_EDITOR
+            SimpleTranslationsEditorConfig configEditor;
+            if (BatUtils.LoadConfig(out configEditor, false))
+            {
+                try
+                {
+                    var targetFilename = config.filename;
+
+                    var folderPath = "";
+                    if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
+                        folderPath = "Assets/Batbelt/Resources/Batbelt/";
+                    else if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
+                        folderPath = "Assets/VNGame/Addressables/";
+                    else
+                        folderPath = configEditor.downloadFileFolder;
+
+                    StreamReader reader = new StreamReader($"{folderPath}{targetFilename}");
+                    translationText = reader.ReadToEnd();
+                    reader.Close();
+                }
+                catch
+                {
+                    Debug.LogWarning("Translation file not found, check the path and if the file exists");
+                }
+            }
+#else
             if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
             {
                 var targetFilename = config.filename;
@@ -243,29 +270,12 @@ public class SimpleTranslations
             }
             else
             {
-#if UNITY_EDITOR
-                SimpleTranslationsEditorConfig configEditor;
-                if (BatUtils.LoadConfig(out configEditor, false))
-                {
-                    try
-                    {
-                        var targetFilename = config.filename;
-                        StreamReader reader = new StreamReader(configEditor.downloadFileFolder + "/" + targetFilename);
-                        translationText = reader.ReadToEnd();
-                        reader.Close();
-                    }
-                    catch
-                    {
-                        Debug.LogWarning("Translation file not found, check the path and if the file exists");
-                    }
-                }
-#else
                 var targetFilename = config.filename;
                 StreamReader reader = new StreamReader(BatUtils.GetUniquePersistentDataPath() + "/" + targetFilename);
                 translationText = reader.ReadToEnd();
                 reader.Close();
-#endif
             }
+#endif
         }
         catch (Exception e)
         {
@@ -275,6 +285,41 @@ public class SimpleTranslations
         }
 
         return translationText;
+    }
+
+    public bool ValidateTranslationsFile(string filepath, out string message)
+    {
+        StreamReader reader = new StreamReader(filepath);
+        var translationText = reader.ReadToEnd();
+        reader.Close();
+        
+        var keys = new HashSet<string>();
+        string[] lines = translationText.Split('\n');
+
+        var issuesCount = 0;
+        
+        StringBuilder messageBuilder = new StringBuilder();
+
+        for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+        {
+            string[] currentLine = lines[lineIndex].Trim(charsToTrim).Split('\t');
+            if (keys.Contains(currentLine[0]))
+            {
+                issuesCount++;
+                messageBuilder.AppendLine($"Error {currentLine[0]} duplicated on line {lineIndex}");
+            }
+            else
+            {
+                keys.Add(currentLine[0]);
+            }
+        }
+        
+        if(issuesCount > 0)
+            message = messageBuilder.ToString();
+        else
+            message = "No issues found in translations file";
+
+        return issuesCount == 0;
     }
 
     static string TryGetFallbackText()
@@ -306,7 +351,6 @@ public class SimpleTranslations
         return keys.ToArray();
     }
 #endif
-
 }
 
 public struct SimpleTranslationsConfig

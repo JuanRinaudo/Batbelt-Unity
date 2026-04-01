@@ -16,6 +16,8 @@ public class SimpleTranslationsEditor : EditorWindow
     public bool viewTexts;
     public int selectedLanguage;
 
+    string _validationMessage;
+    
     private static Vector2 textsScrollPosition = new Vector2();
     private static WebClient downloadClient;
 
@@ -147,6 +149,12 @@ public class SimpleTranslationsEditor : EditorWindow
         {
             GenerateKeysFile();
         }
+        
+        if(!string.IsNullOrEmpty(_validationMessage))
+        {
+            EditorGUILayout.HelpBox(_validationMessage, SimpleTranslations.Instance.LoadFailed ? MessageType.Error : MessageType.None);
+        }
+        
         GUI.enabled = true;
     }
 
@@ -176,24 +184,53 @@ public class SimpleTranslationsEditor : EditorWindow
         }
         
         BatUtils.CheckAndGenerateAssetsFolder(downloadFolder);
-        downloadClient = BatUtils.DownloadTSVFromPublicSheet(downloadFolder + config.filename, editorConfig.gDriveSheetFileId, editorConfig.tabId, (object sender, AsyncCompletedEventArgs e) =>
+        
+        var newFilepath = $"{downloadFolder}new_{config.filename}";
+        var filepath = $"{downloadFolder}{config.filename}";
+        
+        try
         {
-            if (e.Cancelled) {
-                Debug.LogError("File download cancelled");
-                return;
-            }
-            if (e.Error != null) {
-                Debug.LogError(e.Error.ToString());
-                return;
-            }
+            AssetDatabase.StartAssetEditing();
+            
+            downloadClient = BatUtils.DownloadTSVFromPublicSheet(newFilepath, editorConfig.gDriveSheetFileId,
+                editorConfig.tabId, (object sender, AsyncCompletedEventArgs e) =>
+                {
+                    AssetDatabase.StopAssetEditing();
 
-            Debug.Log("Download completed");
-                
-            downloadClient = null;
-            SimpleTranslations.Instance.LoadFailed = false;
-            SimpleTranslations.Instance.SetLanguage(SimpleTranslations.Instance.currentLanguage);
-            AssetDatabase.Refresh();
-        });
+                    if (e.Cancelled)
+                    {
+                        Debug.LogError("File download cancelled");
+                        return;
+                    }
+
+                    if (e.Error != null)
+                    { 
+                        Debug.LogError(e.Error.ToString());
+                        return;
+                    }
+
+                    Debug.Log("Download completed");
+
+                    downloadClient = null;
+                    var validated = SimpleTranslations.Instance.ValidateTranslationsFile(newFilepath, out _validationMessage);
+                    if (validated)
+                    {
+                        if (File.Exists(filepath))
+                            File.Delete(filepath);
+                        File.Move(newFilepath, filepath);
+
+                        SimpleTranslations.Instance.SetLanguage(SimpleTranslations.Instance.currentLanguage);
+                    }
+                    
+                    SimpleTranslations.Instance.LoadFailed = !validated;
+
+                    AssetDatabase.Refresh();
+                });
+        }
+        catch
+        {
+            AssetDatabase.StopAssetEditing();
+        }
     }
 
     private static void LoadConfig()
