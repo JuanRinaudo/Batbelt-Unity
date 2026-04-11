@@ -167,16 +167,16 @@ namespace SimpleTweens
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwPosition(this Transform transform, TweenAnimationData<Vector3> curveData)
+        public static Tween TwPosition(this Transform transform, TweenAnimationData<Vector3> animationData)
         {
-            return transform.TwPosition(curveData.Value, curveData.Duration, curveData.Ease.ToProcedure())
-                .SetDelay(curveData.Delay);
+            return transform.TwPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
-        public static Tween TwLocalPosition(this Transform transform, TweenAnimationData<Vector3> curveData)
+        public static Tween TwLocalPosition(this Transform transform, TweenAnimationData<Vector3> animationData)
         {
-            return transform.TwLocalPosition(curveData.Value, curveData.Duration, curveData.Ease.ToProcedure())
-                .SetDelay(curveData.Delay);
+            return transform.TwLocalPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
         public static Tween TwScale(this Transform transform, TweenAnimationCurveData<Vector3> curveData)
@@ -185,10 +185,10 @@ namespace SimpleTweens
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwScale(this Transform transform, TweenAnimationData<Vector3> curveData)
+        public static Tween TwScale(this Transform transform, TweenAnimationData<Vector3> animationData)
         {
-            return transform.TwScale(curveData.Value, curveData.Duration, curveData.Ease.ToProcedure())
-                .SetDelay(curveData.Delay);
+            return transform.TwScale(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
         public static Tween TwAnchoredPosition(this RectTransform rectTransform,
@@ -198,10 +198,10 @@ namespace SimpleTweens
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwAnchoredPosition(this RectTransform rectTransform, TweenAnimationData<Vector3> curveData)
+        public static Tween TwAnchoredPosition(this RectTransform rectTransform, TweenAnimationData<Vector3> animationData)
         {
-            return rectTransform.TwAnchoredPosition(curveData.Value, curveData.Duration, curveData.Ease.ToProcedure())
-                .SetDelay(curveData.Delay);
+            return rectTransform.TwAnchoredPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
         public static Tween TwScale(this RectTransform rectTransform, TweenAnimationCurveData<Vector3> curveData)
@@ -210,10 +210,16 @@ namespace SimpleTweens
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwScale(this RectTransform rectTransform, TweenAnimationData<Vector3> curveData)
+        public static Tween TwScale(this RectTransform rectTransform, TweenAnimationData<Vector3> animationData)
         {
-            return rectTransform.TwScale(curveData.Value, curveData.Duration, curveData.Ease.ToProcedure())
-                .SetDelay(curveData.Delay);
+            return rectTransform.TwScale(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwColor(this SpriteRenderer sprite, TweenAnimationData<Color> animationData)
+        {
+            return sprite.TwColor(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
     }
 }
