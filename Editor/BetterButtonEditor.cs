@@ -18,11 +18,11 @@ public class BetterButtonEditor : ButtonEditor
         
         BetterButton betterButton = (BetterButton)target;
         betterButton.Label = (TextMeshProUGUI)EditorGUILayout.ObjectField("Label", betterButton.Label, typeof(TextMeshProUGUI), true);
-        betterButton.TransitionLabelColor = EditorGUILayout.Toggle("Transition Label Color", betterButton.TransitionLabelColor);
-        EditorGUILayout.Space(4);
+        betterButton.LabelSyncFullColor = EditorGUILayout.Toggle("Label Sync Full Color", betterButton.LabelSyncFullColor);
+        
         betterButton.Icon = (Image)EditorGUILayout.ObjectField("Icon", betterButton.Icon, typeof(Image), true);
-        betterButton.TransitionIconColor = EditorGUILayout.Toggle("Transition Icon Color", betterButton.TransitionIconColor);
-        EditorGUILayout.Space(4);
+        betterButton.IconSyncFullColor = EditorGUILayout.Toggle("Icon Sync Full Color", betterButton.IconSyncFullColor);
+        
         betterButton.SelectedHighlight = (Image)EditorGUILayout.ObjectField("Selected Highlight", betterButton.SelectedHighlight, typeof(Image), true);
 
         if (EditorGUI.EndChangeCheck())

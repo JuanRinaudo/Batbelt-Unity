@@ -143,6 +143,11 @@ namespace SimpleTweens
             return _activeContextLookup != null && _activeContextLookup.ContainsKey(tween.Id);
         }
 
+        internal bool IsTweenPaused(Tween tween)
+        {
+            return _activeContextLookup != null && _activeContextLookup.ContainsKey(tween.Id) && _activeContextLookup[tween.Id].Paused;
+        }
+
         internal bool HasStarted(Tween tween)
         {
             var ctx = GetContext(tween);

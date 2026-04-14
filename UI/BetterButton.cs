@@ -6,13 +6,13 @@ using UnityEngine.UI;
 public class BetterButton : Button
 {
     public TextMeshProUGUI Label;
-    public bool TransitionLabelColor = true;
-        
     public Image Icon;
-    public bool TransitionIconColor = true;
 
     public Image SelectedHighlight;
-
+    
+    public bool LabelSyncFullColor = false;
+    public bool IconSyncFullColor = false;
+    
     public Tween _labelTween;
     public Tween _iconTween;
     public Tween _highlightTween;
@@ -67,17 +67,17 @@ public class BetterButton : Button
         
         if (instant)
         {
-            if (Label != null && TransitionLabelColor)
-                Label.color = targetColor;
-            if (Icon != null && TransitionIconColor)
-                Icon.color = targetColor;
+            if (Label != null)
+                Label.color = LabelSyncFullColor ? targetColor : Label.color.WithA(targetColor.a);
+            if (Icon != null)
+                Icon.color = IconSyncFullColor ? targetColor : Icon.color.WithA(targetColor.a);
         }
-        else
+        else 
         {
-            if (Label != null && TransitionLabelColor)
-                _labelTween = Label.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
-            if (Icon != null && TransitionIconColor)
-                _iconTween = Icon.TwColor(targetColor, colors.fadeDuration, Easer.Linear);
+            if (Label != null)
+                _labelTween = LabelSyncFullColor ? Label.TwColor(targetColor, colors.fadeDuration, Easer.Linear) : Label.TwTextAlpha(targetColor.a, colors.fadeDuration, Easer.Linear);
+            if (Icon != null)
+                _iconTween = IconSyncFullColor ? Icon.TwColor(targetColor, colors.fadeDuration, Easer.Linear) : Icon.TwAlpha(targetColor.a, colors.fadeDuration, Easer.Linear);
         }
     }
 }

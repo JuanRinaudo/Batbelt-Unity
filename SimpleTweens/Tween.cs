@@ -18,6 +18,7 @@ namespace SimpleTweens
         /// Is this tween alive? The tween can be alive even ifs been paused.
         /// </summary>
         public bool IsAlive => _tweenManager && _tweenManager.IsTweenActive(this);
+        public bool IsPaused => _tweenManager && _tweenManager.IsTweenPaused(this);
         public bool HasStarted => _tweenManager && _tweenManager.HasStarted(this);
 
         internal Tween(TweenManager tweenManager)

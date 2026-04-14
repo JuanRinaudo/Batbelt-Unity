@@ -18,11 +18,16 @@ public class BetterToggleEditor : ToggleEditor
         
         BetterToggle betterToggle = (BetterToggle)target;
         betterToggle.Label = (TextMeshProUGUI)EditorGUILayout.ObjectField("Label", betterToggle.Label, typeof(TextMeshProUGUI), true);
-        betterToggle.TransitionLabelColor = EditorGUILayout.Toggle("Transition Label Color", betterToggle.TransitionLabelColor);
-        EditorGUILayout.Space(4);
+        betterToggle.LabelSyncFullColor = EditorGUILayout.Toggle("Label Sync Full Color", betterToggle.LabelSyncFullColor);
+        
         betterToggle.Icon = (Image)EditorGUILayout.ObjectField("Icon", betterToggle.Icon, typeof(Image), true);
-        betterToggle.TransitionIconColor = EditorGUILayout.Toggle("Transition Icon Color", betterToggle.TransitionIconColor);
-
+        betterToggle.IconSyncFullColor = EditorGUILayout.Toggle("Icon Sync Full Color", betterToggle.IconSyncFullColor);
+        
+        EditorGUILayout.Space(2);
+        betterToggle.Overlay = (Image)EditorGUILayout.ObjectField("Overlay", betterToggle.Overlay, typeof(Image), true);
+        betterToggle.OverlayOnColor = EditorGUILayout.ColorField("Overlay On Color", betterToggle.OverlayOnColor);
+        betterToggle.OverlayOffColor = EditorGUILayout.ColorField("Overlay Off Color", betterToggle.OverlayOffColor);
+        
         if (EditorGUI.EndChangeCheck())
         {
             Undo.RecordObject(betterToggle, "BetterToggle Change");

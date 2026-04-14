@@ -2,7 +2,6 @@
 
 public static class MathExtensions
 {
-
     public static Vector2 ToVector2XY(this Vector3 value)
     {
         return new Vector2(value.x, value.y);
@@ -13,4 +12,8 @@ public static class MathExtensions
         return new Vector3(value.x, value.y, z);
     }
 
+    public static Vector3 Abs(this Vector3 v)
+    {
+        return new Vector3(Mathf.Abs(v.x), Mathf.Abs(v.y), Mathf.Abs(v.z));
+    }
 }
