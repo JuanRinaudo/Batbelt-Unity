@@ -629,4 +629,16 @@ public static class BatUtils
         return new AssetReferenceT<T>(guid);
     }
 #endif
+    public static void CopyFolderContent(string target, string source, bool ignoreMeta = true)
+    {
+        string[] fileEntries = Directory.GetFiles(target);
+        foreach (string fileName in fileEntries)
+        {
+            if(ignoreMeta && fileName.EndsWith(".meta"))
+                continue;
+                
+            string destFile = Path.Combine(source, Path.GetFileName(fileName));
+            File.Copy(fileName, destFile, true);
+        }
+    }
 }
