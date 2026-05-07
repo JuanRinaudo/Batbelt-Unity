@@ -21,7 +21,7 @@ public class SimpleTranslationsEditor : EditorWindow
     private static Vector2 textsScrollPosition = new Vector2();
     private static WebClient downloadClient;
 
-    [MenuItem("Batbelt/Translation/Config")]
+    [MenuItem("Batbelt/Translation/Editor")]
     public static void CreateWindow()
     {
         SimpleTranslationsEditor simpleTranslations = GetWindow<SimpleTranslationsEditor>();
