@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 #if NEWTONSOFT_ENABLED
@@ -7,6 +9,43 @@ using Newtonsoft.Json;
 
 public static class ObjectExtensions
 {
+    [Serializable]
+    private class ListWrapper<T>
+    {
+        public List<T> items;
+    }
+    
+    public static object DeepClone(this object obj)
+    {
+        if (obj == null) return null;
+    
+        var type = obj.GetType();
+    
+        if (type.IsArray)
+        {
+            var elementType = type.GetElementType();
+            var json = JsonUtility.ToJson(new { items = obj });
+            var wrapperType = typeof(ListWrapper<>).MakeGenericType(elementType);
+            var wrapper = JsonUtility.FromJson(json, wrapperType);
+            return wrapperType.GetField("items").GetValue(wrapper);
+        }
+        else if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(List<>))
+        {
+            var elementType = type.GetGenericArguments()[0];
+            var wrapperType = typeof(ListWrapper<>).MakeGenericType(elementType);
+            var wrapper = Activator.CreateInstance(wrapperType);
+            wrapperType.GetField("items").SetValue(wrapper, obj);
+            var json = JsonUtility.ToJson(wrapper);
+            var clonedWrapper = JsonUtility.FromJson(json, wrapperType);
+            return wrapperType.GetField("items").GetValue(clonedWrapper);
+        }
+        else
+        {
+            var json = JsonUtility.ToJson(obj);
+            return JsonUtility.FromJson(json, type);
+        }
+    }
+    
     public static T DeepCopy<T>(this T self)
     {
 #if NEWTONSOFT_ENABLED

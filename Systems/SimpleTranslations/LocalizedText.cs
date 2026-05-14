@@ -10,4 +10,9 @@ public class LocalizedText
     {
         return localizedText != null ? localizedText.Value : null;
     }
+
+    public override string ToString()
+    {
+        return Value;
+    }
 }

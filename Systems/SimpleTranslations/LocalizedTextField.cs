@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -78,6 +79,8 @@ public class CustomAutoCompleteTextField : VisualElement
     public VisualElement DropdownContainer;
 
     public string Value => InputField.value;
+    
+    bool _isFocused = false;
 
     public CustomAutoCompleteTextField(SerializedProperty property, string[] options, VisualElement container, Action<string> onValueChange, string label = "Key")
     {
@@ -88,13 +91,21 @@ public class CustomAutoCompleteTextField : VisualElement
         style.marginBottom = 6;
 
         InputField = new TextField(label);
-        InputField.value = property.stringValue;
-
+        InputField.BindProperty(property);
+        
+        InputField.RegisterCallback<FocusInEvent>(_ => _isFocused = true);
+        InputField.RegisterCallback<FocusOutEvent>(_ => {
+            _isFocused = false;
+            HideDropdown();
+        });
+        
         InputField.RegisterValueChangedCallback(evt =>
         {
-            property.stringValue = evt.newValue;
-            property.serializedObject.ApplyModifiedProperties();
-            FilterOptions(evt.newValue);
+            var fresh = BoundProperty.serializedObject.FindProperty(BoundProperty.propertyPath);
+            fresh.stringValue = evt.newValue;
+            fresh.serializedObject.ApplyModifiedProperties();
+            if (_isFocused)
+                FilterOptions(evt.newValue);
             onValueChange(evt.newValue);
         });
 
@@ -103,7 +114,6 @@ public class CustomAutoCompleteTextField : VisualElement
 
         Add(InputField);
 
-        // Dropdown container
         DropdownContainer = new VisualElement
         {
             style =
@@ -119,22 +129,48 @@ public class CustomAutoCompleteTextField : VisualElement
                 borderLeftWidth = 1,
                 borderRightWidth = 1,
                 marginTop = -2,
-                maxHeight = 150,
                 overflow = Overflow.Visible,
             }
         };
+        
+        var styleAsset = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/SimpleVN/StoryGraph/CustomEditors/Styles/NodeEditorStyle.uss");
+        DropdownContainer.styleSheets.Add(styleAsset); 
+
+        Font font = (Font)Resources.GetBuiltinResource(typeof(Font), "LegacyRuntime.ttf");
+        DropdownContainer.style.unityFont = font;
 
         DropdownList = new ListView
         {
             selectionType = SelectionType.Single,
             showBorder = true,
-            showAlternatingRowBackgrounds = AlternatingRowBackground.None,
+            fixedItemHeight = 30,
+            showAlternatingRowBackgrounds = AlternatingRowBackground.All,
             style =
             {
                 flexGrow = 1,
-                backgroundColor = Color.gray
+                backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.8f),
+                overflow = Overflow.Hidden,
+                
+                borderLeftWidth = 2,
+                borderRightWidth = 2,
+                borderTopWidth = 2,
+                borderBottomWidth = 2,
+
+                borderLeftColor = Color.gray,
+                borderRightColor = Color.gray,
+                borderTopColor = Color.gray,
+                borderBottomColor = Color.gray,
+
+                borderTopLeftRadius = 2,
+                borderTopRightRadius = 2,
+                borderBottomLeftRadius = 2,
+                borderBottomRightRadius = 2,
             },
-            makeItem = () => new Label(),
+            makeItem = () => 
+            {
+                var label = new Label { };
+                return label;
+            },
             bindItem = (e, i) =>
             {
                 (e as Label).text = filtered[i];
@@ -151,35 +187,60 @@ public class CustomAutoCompleteTextField : VisualElement
             }
         };
         
-        DropdownContainer.Add(DropdownList);
-        container.parent.Add(DropdownContainer);
-        HideDropdown();
+        RegisterCallback<AttachToPanelEvent>(evt =>
+        {
+            evt.destinationPanel.visualTree.contentContainer.Add(DropdownContainer);
+            DropdownContainer.name = "DROPDOWN_CONTAINER";
+            DropdownContainer.Add(DropdownList);
+            HideDropdown();
+        });
+
+        RegisterCallback<DetachFromPanelEvent>(evt =>
+        {
+            DropdownContainer.RemoveFromHierarchy();
+        });
+        
+        DropdownList.RegisterCallback<AttachToPanelEvent>(evt => 
+        {
+            var scroller = DropdownList.Q<Scroller>();
+            if (scroller != null)
+            {
+                scroller.style.width = 12;
+                // Target the dragger (the part you click and pull)
+                var dragger = scroller.Q<VisualElement>("unity-dragger");
+                if (dragger != null) dragger.style.backgroundColor = Color.gray;
+            }
+        });
     }
 
     string[] filtered = Array.Empty<string>();
 
     void FilterOptions(string input)
     {
-        if (string.IsNullOrEmpty(input))
-        {
-            HideDropdown();
-            return;
-        }
-
         filtered = AllOptions
-            .Where(o => o.IndexOf(input, StringComparison.OrdinalIgnoreCase) >= 0)
-            .Take(10)
+            .Where(o => o.Contains(input, StringComparison.OrdinalIgnoreCase))
             .ToArray();
 
-        if (filtered.Length == 0)
+        DropdownList.itemsSource = filtered;
+        if (filtered.Length > 0)
+        { 
+            float itemHeight = DropdownList.fixedItemHeight;
+            float totalHeight = Math.Min(filtered.Length * itemHeight, 250); 
+            DropdownContainer.style.height = totalHeight;
+            
+            var worldBound = InputField.worldBound;
+            DropdownContainer.style.left = worldBound.x;
+            DropdownContainer.style.top = worldBound.yMax;
+            DropdownContainer.style.width = worldBound.width;
+            // DropdownContainer.style.backgroundColor = Color.clear;
+
+            DropdownContainer.style.display = DisplayStyle.Flex;
+            DropdownList.RefreshItems();
+        }
+        else
         {
             HideDropdown();
-            return;
         }
-
-        DropdownList.itemsSource = filtered;
-        DropdownList.RefreshItems();
-        ShowDropdown();
     }
 
     void ShowDropdown()
@@ -188,7 +249,7 @@ public class CustomAutoCompleteTextField : VisualElement
         DropdownContainer.style.display = DisplayStyle.Flex;
     }
 
-    void HideDropdown()
+    public void HideDropdown()
     {
         DropdownContainer.style.display = DisplayStyle.None;
     }
