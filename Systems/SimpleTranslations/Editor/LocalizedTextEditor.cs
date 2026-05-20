@@ -39,7 +39,8 @@ public class LocalizedTextEditor : PropertyDrawer
                 freshProperty.serializedObject.ApplyModifiedProperties();
                 previewLabel.text = SimpleTranslations.GetText(newValue);
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
-            }
+            },
+            property.name
         );
 
         container.Add(keyField);
