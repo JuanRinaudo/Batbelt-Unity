@@ -92,25 +92,28 @@ public class CustomAutoCompleteTextField : VisualElement
 
         InputField = new TextField(label);
         InputField.BindProperty(property);
-        
-        InputField.RegisterCallback<FocusInEvent>(_ => _isFocused = true);
-        InputField.RegisterCallback<FocusOutEvent>(_ => {
+
+        InputField.RegisterCallback<FocusInEvent>(_ =>
+        {
+            _isFocused = true;
+        });
+        InputField.RegisterCallback<FocusOutEvent>(_ =>
+        {
             _isFocused = false;
             HideDropdown();
+        });
+        InputField.RegisterCallback<KeyDownEvent>(e =>
+        {
+            OnKeyDown(e);
         });
         
         InputField.RegisterValueChangedCallback(evt =>
         {
-            var fresh = BoundProperty.serializedObject.FindProperty(BoundProperty.propertyPath);
-            fresh.stringValue = evt.newValue;
-            fresh.serializedObject.ApplyModifiedProperties();
             if (_isFocused)
                 FilterOptions(evt.newValue);
+        
             onValueChange(evt.newValue);
         });
-
-        InputField.RegisterCallback<FocusOutEvent>(_ => HideDropdown());
-        InputField.RegisterCallback<KeyDownEvent>(OnKeyDown);
 
         Add(InputField);
 
@@ -258,6 +261,7 @@ public class CustomAutoCompleteTextField : VisualElement
     {
         if (evt.keyCode == KeyCode.Escape)
         {
+            _isFocused = false;
             HideDropdown();
             evt.StopPropagation();
         }
