@@ -24,7 +24,7 @@ public class AutoCompleteElement : MonoBehaviour
         get { return isSection.activeSelf; }
     }
 
-    public void Init(System.Action<AutoCompleteElement> onClick)
+    public void Initialize(System.Action<AutoCompleteElement> onClick)
     {
         btn.onClick.AddListener(() =>
         {

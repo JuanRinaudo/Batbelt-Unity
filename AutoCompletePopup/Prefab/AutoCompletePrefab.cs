@@ -310,7 +310,7 @@ namespace RotaryHeart.Lib.AutoComplete
                 if (m_spawnedElements.Count <= i)
                 {
                     element = Instantiate(elementPrefab, componentsHolder, false);
-                    element.Init((clicked) =>
+                    element.Initialize((clicked) =>
                     {
                         if (clicked.IsSection)
                         {
