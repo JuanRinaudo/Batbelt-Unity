@@ -87,7 +87,8 @@ public class SimpleAudio : MonoBehaviour
             audioSource.clip = null;
         }, audioSource =>
         {
-            Destroy(audioSource.gameObject);
+            if(audioSource != null)
+                Destroy(audioSource.gameObject);
         }, false, 10, 100);
 
         instance = this;
