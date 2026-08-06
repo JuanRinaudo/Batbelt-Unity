@@ -1,5 +1,12 @@
 fileFormatVersion: 2
 guid: 05ed522948f1a004eac079bcf1a9da1c
+AssetOrigin:
+  serializedVersion: 1
+  productId: 112403
+  packageName: AutoComplete Popup
+  packageVersion: 3.0.6
+  assetPath: Assets/Rotary Heart/AutoCompletePopup/AutoCompleteBase.cs
+  uploadId: 655038
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
@@ -9,10 +16,3 @@ MonoImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
-AssetOrigin:
-  serializedVersion: 1
-  productId: 112403
-  packageName: AutoComplete Popup
-  packageVersion: 3.0.6
-  assetPath: Assets/Rotary Heart/AutoCompletePopup/AutoCompleteBase.cs
-  uploadId: 655038

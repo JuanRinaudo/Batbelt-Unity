@@ -47,9 +47,11 @@ public class SimpleAudio : MonoBehaviour
     }
 #endif
     
-    public static SimpleAudio CreateAudioSingleton()
+    public static SimpleAudio CreateAudioSingleton(Transform parent = null)
     {
         Instantiate(Resources.Load<GameObject>(SIMPLE_INSTANCE_RESOURCE_PATH));
+        if(parent != null)
+            instance.transform.SetParent(parent);
         return instance;
     }
 
@@ -98,6 +100,9 @@ public class SimpleAudio : MonoBehaviour
     public void PlaySoundBank(SoundBank sound, float volumeModifier = 1.0f)
     {
         var clip = sound.GetRandomClip();
+        if (clip == null)
+            return;
+        
         var pitch = sound.randomPitch ? sound.GetPitch() : sound.minPitch;
 
         var sfxSource = _sfxPool.Get();

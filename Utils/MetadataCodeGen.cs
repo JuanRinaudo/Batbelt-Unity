@@ -106,6 +106,10 @@ public static class MetadataCodeGen
         for (int animatorIndex = 0; animatorIndex < animatorsGUIDs.Length; ++animatorIndex)
         {
             string path = AssetDatabase.GUIDToAssetPath(animatorsGUIDs[animatorIndex]);
+            
+            if(path.Contains("~"))
+                continue;
+            
             UnityEditor.Animations.AnimatorController animatorController = AssetDatabase.LoadAssetAtPath<UnityEditor.Animations.AnimatorController>(path);
             
             string filename = BatUtils.NormalizeKey(animatorController.name);
@@ -150,6 +154,10 @@ public static class MetadataCodeGen
         for (int folderIndex = 0; folderIndex < foldersGUIDs.Length; ++folderIndex)
         {
             string path = AssetDatabase.GUIDToAssetPath(foldersGUIDs[folderIndex]);
+            
+            if(path.Contains("~"))
+                continue;
+            
             int lastSlashIndex = path.LastIndexOf('/') + 1;
             string lastPart = path.Substring(lastSlashIndex);
             if (!path.StartsWith("Packages/") && lastPart == "Resources")
@@ -262,6 +270,9 @@ public static class MetadataCodeGen
         for (int sceneIndex = 0; sceneIndex < scenesGUID.Length; ++sceneIndex)
         {
             string path = AssetDatabase.GUIDToAssetPath(scenesGUID[sceneIndex]);
+            
+            if(path.Contains("~"))
+                continue;
 
             int cropStartIndex = path.IndexOf("/Assets") + 8; // #NOTE (Juan): Added X to index because it goes to the next slash;
             string resourcePath = path.Substring(cropStartIndex);

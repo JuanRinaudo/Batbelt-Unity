@@ -70,6 +70,13 @@ namespace SimpleTweens
             return tween;
         }
 
+        public static Tween TwAlpha(this Material material, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(material.color.a, target, duration, v => material.color = material.color.WithA(v),
+                ease, material);
+            return tween;
+        }
+
         public static Tween TwScale(this Image image, Vector3 target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(image.transform.localScale, target, duration,
@@ -132,6 +139,12 @@ namespace SimpleTweens
         public static Tween TwColor(this SpriteRenderer sprite, Color color, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(sprite.color, color, duration, v => sprite.color = v, ease, sprite);
+            return tween;
+        }
+
+        public static Tween TwColor(this Material material, Color color, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(material.color, color, duration, v => material.color = v, ease, material);
             return tween;
         }
 
