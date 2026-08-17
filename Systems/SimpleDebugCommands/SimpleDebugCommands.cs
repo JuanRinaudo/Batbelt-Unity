@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+
+#if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
+#endif
 
 #if UNITY_EDITOR || DEBUG_BUILD
 [AttributeUsage(AttributeTargets.Method)]
@@ -22,7 +25,6 @@ public class SimpleDebugCommandAttribute : Attribute
 
 public class SimpleDebugCommands : MonoBehaviour
 {
-    
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     public static void LoadDebuger()
     {
@@ -39,7 +41,7 @@ public class SimpleDebugCommands : MonoBehaviour
 
     public static SimpleDebugCommands Instance;
 
-    [Header(AttributeConstants.HeaderReferences)]
+    [Header("References")]
     public RectTransform mainContainer;
     public ScrollRect commandsScrollRect;
     public RectTransform categoryViewport;
@@ -153,11 +155,12 @@ public class SimpleDebugCommands : MonoBehaviour
     private void Update()
     {
         bool touchInputToggle = false;
-        int touchCount = Touchscreen.current != null ? Touchscreen.current.touches.Count(t => t.isInProgress) : 0;
-        if(touchCount == 2 && debugInputTimer >= 0)
+        int activeTouchCount = GetActiveTouchCount();
+
+        if (activeTouchCount == 2 && debugInputTimer >= 0)
         {
             debugInputTimer += Time.deltaTime;
-            if(debugInputTimer > 0.5f)
+            if (debugInputTimer > 0.5f)
             {
                 touchInputToggle = true;
                 debugInputTimer = -1;
@@ -168,10 +171,50 @@ public class SimpleDebugCommands : MonoBehaviour
             debugInputTimer = 0;
         }
 
-        if(Keyboard.current.f1Key.wasPressedThisFrame || touchInputToggle)
+        if (IsF1KeyPressedThisFrame() || touchInputToggle)
         {
             ToggleDebugCommandsWindow();
         }
+    }
+
+    private int GetActiveTouchCount()
+    {
+        int count = 0;
+
+#if ENABLE_INPUT_SYSTEM
+        if (Touchscreen.current != null)
+        {
+            count += Touchscreen.current.touches.Count(t => t.isInProgress);
+        }
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        if (count == 0)
+        {
+            count = Input.touchCount;
+        }
+#endif
+
+        return count;
+    }
+
+    private bool IsF1KeyPressedThisFrame()
+    {
+#if ENABLE_INPUT_SYSTEM
+        if (Keyboard.current != null && Keyboard.current.f1Key.wasPressedThisFrame)
+        {
+            return true;
+        }
+#endif
+
+#if ENABLE_LEGACY_INPUT_MANAGER
+        if (Input.GetKeyDown(KeyCode.F1))
+        {
+            return true;
+        }
+#endif
+
+        return false;
     }
 
     public void ToggleDebugCommandsWindow()
@@ -201,6 +244,5 @@ public class SimpleDebugCommands : MonoBehaviour
 
         debugIndex = (debugIndex + 1) % debugLines.Length;
     }
-
 }
 #endif
