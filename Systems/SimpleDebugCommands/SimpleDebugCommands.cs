@@ -135,6 +135,8 @@ public class SimpleDebugCommands : MonoBehaviour
 
     public static SimpleDebugCommands Instance;
     
+    public static bool IsActive => Instance != null && Instance.mainContainer.gameObject.activeSelf;
+    
     static TMP_FontAsset _fontAsset;
     static Color _fontColor;
     
@@ -316,27 +318,27 @@ public class SimpleDebugCommands : MonoBehaviour
                     float initialValue = currentVal != null ? Convert.ToSingle(currentVal) : member.FloatAttr.defaultValue;
                     inputField.text = initialValue.ToString(CultureInfo.InvariantCulture);
 
-                    Action<string> handleInputSubmit = (string newText) =>
+                    void HandleInputSubmit(string newText, bool refresh = false)
                     {
                         if (float.TryParse(newText, NumberStyles.Float, CultureInfo.InvariantCulture, out float val))
                         {
                             float clampedValue = Mathf.Clamp(val, member.FloatAttr.minValue, member.FloatAttr.maxValue);
-                
-                            if (!Mathf.Approximately(clampedValue, val))
-                                inputField.text = clampedValue.ToString(CultureInfo.InvariantCulture);
+
+                            if (!Mathf.Approximately(clampedValue, val)) inputField.text = clampedValue.ToString(CultureInfo.InvariantCulture);
 
                             member.SetValue(clampedValue);
-                            RefreshUI();
+                            if (refresh)
+                                RefreshUI();
                         }
-                    };
+                    }
 
                     if (member.FloatAttr.isInstant)
                     {
-                        inputField.onValueChanged.AddListener((val) => handleInputSubmit(val));
+                        inputField.onValueChanged.AddListener((val) => HandleInputSubmit(val));
                     }
                     else
                     {
-                        inputField.onEndEdit.AddListener((val) => handleInputSubmit(val));
+                        inputField.onEndEdit.AddListener((val) => HandleInputSubmit(val, true));
                     }
                 }
             }
@@ -365,27 +367,27 @@ public class SimpleDebugCommands : MonoBehaviour
                     int initialValue = currentVal != null ? Convert.ToInt32(currentVal) : member.IntAttr.defaultValue;
                     inputField.text = initialValue.ToString();
 
-                    Action<string> handleInputSubmit = (string newText) =>
+                    void HandleInputSubmit(string newText, bool refresh = false)
                     {
                         if (int.TryParse(newText, out int val))
                         {
                             int clampedValue = Mathf.Clamp(val, member.IntAttr.minValue, member.IntAttr.maxValue);
-                
-                            if (clampedValue != val)
-                                inputField.text = clampedValue.ToString();
+
+                            if (clampedValue != val) inputField.text = clampedValue.ToString();
 
                             member.SetValue(clampedValue);
-                            RefreshUI();
+                            if(refresh)
+                                RefreshUI();
                         }
-                    };
+                    }
 
                     if (member.IntAttr.isInstant)
                     {
-                        inputField.onValueChanged.AddListener((val) => handleInputSubmit(val));
+                        inputField.onValueChanged.AddListener((val) => HandleInputSubmit(val));
                     }
                     else
                     {
-                        inputField.onEndEdit.AddListener((val) => handleInputSubmit(val));
+                        inputField.onEndEdit.AddListener((val) => HandleInputSubmit(val, true));
                     }
                 }
             }
@@ -474,7 +476,7 @@ public class SimpleDebugCommands : MonoBehaviour
         bool touchInputToggle = false;
         int activeTouchCount = GetActiveTouchCount();
 
-        if (activeTouchCount == 2 && _debugInputTimer >= 0)
+        if (activeTouchCount == 3 && _debugInputTimer >= 0)
         {
             _debugInputTimer += Time.deltaTime;
             if (_debugInputTimer > 0.5f)
@@ -537,7 +539,6 @@ public class SimpleDebugCommands : MonoBehaviour
     public void ToggleDebugCommandsWindow()
     {
         bool willBeActive = !mainContainer.gameObject.activeSelf;
-
         if (willBeActive)
         {
             RefreshUI();
