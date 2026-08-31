@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 using Object = UnityEngine.Object;
 
 namespace SimpleTweens.Internal
@@ -28,6 +29,8 @@ namespace SimpleTweens.Internal
         public Action? OnCancel;
         
         public Action? OnStart;
+
+        public Action? OnLoop;
 
         public Action? OnComplete;
         

@@ -56,4 +56,12 @@ public class SoundBank : ScriptableObject
         else
             TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this), this);
     }
+
+    public void Play(float pitch)
+    {
+        if(Delay <= 0)
+            SimpleAudio.instance.PlaySoundBank(this, 1, pitch);
+        else
+            TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this, 1, pitch), this);
+    }
 }

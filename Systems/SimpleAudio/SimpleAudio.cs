@@ -100,6 +100,21 @@ public class SimpleAudio : MonoBehaviour
         DontDestroyOnLoad(gameObject);
     }
 
+    public void PlaySoundBank(SoundBank sound, float volumeModifier, float pitch)
+    {
+        var clip = sound.GetRandomClip();
+        if (clip == null)
+            return;
+
+        var sfxSource = _sfxPool.Get();
+        sfxSource.pitch = pitch;
+        sfxSource.volume = sound.volume * volumeModifier;
+        sfxSource.clip = clip;
+        sfxSource.Play();
+
+        _activeSFXSources.Add(sfxSource);
+    }
+
     public void PlaySoundBank(SoundBank sound, float volumeModifier = 1.0f)
     {
         var clip = sound.GetRandomClip();

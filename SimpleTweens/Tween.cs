@@ -114,6 +114,13 @@ namespace SimpleTweens
             _tweenManager.AddOnStart(this, start);
             return this;
         }
+        
+        public Tween AddOnLoop(Action loop)
+        {
+            ThrowIfInvalid();
+            _tweenManager.AddOnLoop(this, loop);
+            return this;
+        }
 
         public Tween SetLoops(int loops, LoopType type)
         {
