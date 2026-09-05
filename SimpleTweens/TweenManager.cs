@@ -219,6 +219,15 @@ namespace SimpleTweens
 
             ctx.OnCancel += cancel;
         }
+        
+        internal void AddOnUpdate(Tween tween, Action<float> update)
+        {
+            var ctx = GetContext(tween);
+            if (ctx is null)
+                return;
+
+            ctx.Updater += update;
+        }
 
         internal void AddOnComplete(Tween tween, Action complete)
         {

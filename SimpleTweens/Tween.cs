@@ -100,6 +100,13 @@ namespace SimpleTweens
             _tweenManager.AddOnCancel(this, cancel);
             return this;
         }
+        
+        public Tween AddOnUpdate(Action<float> update)
+        {
+            ThrowIfInvalid();
+            _tweenManager.AddOnUpdate(this, update);
+            return this;
+        }
 
         public Tween AddOnComplete(Action complete)
         {

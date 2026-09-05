@@ -11,6 +11,11 @@ public static class MathExtensions
     {
         return new Vector3(value.x, value.y, z);
     }
+    
+    public static Vector3 ToVector3XZ(this Vector2 value, float y = 0)
+    {
+        return new Vector3(value.x, y, value.y);
+    }
 
     public static Vector3 Abs(this Vector3 v)
     {
