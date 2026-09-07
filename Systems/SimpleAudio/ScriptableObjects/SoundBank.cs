@@ -19,7 +19,7 @@ public class SoundBank : ScriptableObject
     public AudioSelectType SelectType = AudioSelectType.Random;
 
     [Space]
-    public bool randomPitch = false; 
+    public bool randomPitch = false;
     public float minPitch = 1;
     public float maxPitch = 1;
 
@@ -56,12 +56,30 @@ public class SoundBank : ScriptableObject
         else
             TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this), this);
     }
+    
+    public void Play(float volumeModifier)
+    {
+        if(Delay <= 0)
+            SimpleAudio.instance.PlaySoundBank(this, volumeModifier);
+        else
+            TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this, volumeModifier), this);
+    }
 
-    public void Play(float pitch)
+    public void PlayPitched(float pitch)
     {
         if(Delay <= 0)
             SimpleAudio.instance.PlaySoundBank(this, 1, pitch);
         else
             TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this, 1, pitch), this);
+    }
+
+    public void PlayPitched(float pitch, float deltaDown, float deltaUp)
+    {
+        var targetPitch = pitch + Random.Range(-deltaDown, deltaUp);
+        
+        if(Delay <= 0)
+            SimpleAudio.instance.PlaySoundBank(this, 1, targetPitch);
+        else
+            TweenManager.Instance.DelayedCall(Delay, () => SimpleAudio.instance.PlaySoundBank(this, 1, targetPitch), this);
     }
 }
