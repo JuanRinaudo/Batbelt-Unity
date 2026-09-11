@@ -1,12 +1,29 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class GoogleSheetValueAttribute : Attribute
+public class GoogleSheetValueAttribute : GoogleSheetBindingAttribute
 {
-    public string Key { get; }
+    public GoogleSheetValueAttribute(string key = null) : base(key) { }
 
-    public GoogleSheetValueAttribute(string key = null)
+    public override bool Apply(
+        object target,
+        MemberInfo member,
+        IReadOnlyDictionary<string, List<string>> sheetData
+    )
     {
-        Key = key;
+        string lookupKey = ResolveKey(member);
+        if (!sheetData.TryGetValue(lookupKey, out var values) ||
+            values.Count == 0)
+        {
+            return false;
+        }
+
+        object parsedValue = GoogleSheetConverter.ConvertValue(
+            values[0],
+            GetMemberType(member)
+        );
+
+        SetMemberValue(target, member, parsedValue);
+        return true;
     }
 }
