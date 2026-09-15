@@ -1,12 +1,26 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Reflection;
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
-public class GoogleSheetArrayAttribute : Attribute
+public class GoogleSheetArrayAttribute : GoogleSheetBindingAttribute
 {
-    public string Key { get; }
+    public GoogleSheetArrayAttribute(string key = null) : base(key) { }
 
-    public GoogleSheetArrayAttribute(string key = null)
+    public override bool Apply(object target, MemberInfo member, IReadOnlyDictionary<string, List<string>> sheetData)
     {
-        Key = key;
+        string lookupKey = ResolveKey(member);
+        if (!sheetData.TryGetValue(lookupKey, out var values))
+        {
+            return false;
+        }
+
+        object collection = GoogleSheetConverter.CreateCollection(
+            GetMemberType(member),
+            values
+        );
+
+        if (collection == null) return false;
+
+        SetMemberValue(target, member, collection);
+        return true;
     }
 }
