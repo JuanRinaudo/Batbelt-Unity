@@ -18,25 +18,24 @@ public partial class Configs : MonoBehaviour
         }
     }
 
-    void Awake()
-    {
-#if UNITY_WEBGL
-        _targetPlatformConfig = WebPlatformConfig;
-#elif UNITY_ANDROID
-        _targetPlatformConfig = AndroidPlatformConfig;
-#else
-        _targetPlatformConfig = DesktopPlatformConfig;
-#endif
-    }
-
     [Header("Platform")]
     public WebPlatformConfigData WebPlatformConfig;
     public AndroidPlatformConfigData AndroidPlatformConfig;
     public DesktopPlatformConfigData DesktopPlatformConfig;
 
-    PlatformConfigData _targetPlatformConfig;
-
-    public static PlatformConfigData Platform => Instance != null ? Instance._targetPlatformConfig : null;
+    public static PlatformConfigData Platform
+    {
+        get
+        {
+#if UNITY_WEBGL
+            return Instance != null ? Instance.WebPlatformConfig : null;
+#elif UNITY_ANDROID
+            return Instance != null ? Instance.AndroidPlatformConfig : null;
+#else
+            return Instance != null ? Instance.DesktopPlatformConfig : null;
+#endif
+        }
+    }
 
     [Header("Configs")]
     public CoreConfigData CoreConfig;

@@ -334,6 +334,7 @@ public class SimpleAudio : MonoBehaviour
         if (SoundEnabled)
         {
             SoundEnabled = false;
+            _realMixerMasterVolume = GetMixerMasterVolume();
             InternalSetMasterVolume(0);
         }
     }
