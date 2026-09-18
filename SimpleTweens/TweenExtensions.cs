@@ -10,7 +10,7 @@ namespace SimpleTweens
         {
             return curve.Evaluate(v);
         }
-        
+
         public static Tween TwPosition(this Transform transform, Vector3 target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(transform.position, target, duration, v => transform.position = v, 
@@ -23,8 +23,43 @@ namespace SimpleTweens
             return transform.TwPosition(target, duration, ease.ToProcedure());
         }
 
-        public static Tween TwLocalPosition(this Transform transform, Vector3 target, float duration,
-            EaseProcedure ease)
+        public static Tween TwPositionX(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.position.x, target, duration, v => { var p = transform.position; p.x = v; transform.position = p; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwPositionX(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwPositionX(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwPositionY(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.position.y, target, duration, v => { var p = transform.position; p.y = v; transform.position = p; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwPositionY(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwPositionY(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwPositionZ(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.position.z, target, duration, v => { var p = transform.position; p.z = v; transform.position = p; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwPositionZ(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwPositionZ(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwLocalPosition(this Transform transform, Vector3 target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(transform.localPosition, target, duration, v => transform.localPosition = v,
                 ease, transform);
@@ -34,6 +69,42 @@ namespace SimpleTweens
         public static Tween TwLocalPosition(this Transform transform, Vector3 target, float duration, Ease ease)
         {
             return transform.TwLocalPosition(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwLocalPositionX(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localPosition.x, target, duration, v => { var p = transform.localPosition; p.x = v; transform.localPosition = p; },
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwLocalPositionX(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwLocalPositionX(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwLocalPositionY(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localPosition.y, target, duration, v => { var p = transform.localPosition; p.y = v; transform.localPosition = p; },
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwLocalPositionY(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwLocalPositionY(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwLocalPositionZ(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localPosition.z, target, duration, v => { var p = transform.localPosition; p.z = v; transform.localPosition = p; },
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwLocalPositionZ(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwLocalPositionZ(target, duration, ease.ToProcedure());
         }
 
         public static Tween TwScale(this Transform transform, Vector3 target, float duration, EaseProcedure ease)
@@ -48,8 +119,43 @@ namespace SimpleTweens
             return transform.TwScale(target, duration, ease.ToProcedure());
         }
 
-        public static Tween TwAnchoredPosition(this RectTransform rectTransform, Vector2 target, float duration,
-            EaseProcedure ease)
+        public static Tween TwScaleX(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localScale.x, target, duration, v => { var s = transform.localScale; s.x = v; transform.localScale = s; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwScaleX(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwScaleX(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScaleY(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localScale.y, target, duration, v => { var s = transform.localScale; s.y = v; transform.localScale = s; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwScaleY(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwScaleY(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScaleZ(this Transform transform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(transform.localScale.z, target, duration, v => { var s = transform.localScale; s.z = v; transform.localScale = s; }, 
+                ease, transform);
+            return tween;
+        }
+
+        public static Tween TwScaleZ(this Transform transform, float target, float duration, Ease ease)
+        {
+            return transform.TwScaleZ(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwAnchoredPosition(this RectTransform rectTransform, Vector2 target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(rectTransform.anchoredPosition, target, duration, v => rectTransform.anchoredPosition = v,
                 ease, rectTransform);
@@ -61,8 +167,31 @@ namespace SimpleTweens
             return rectTransform.TwAnchoredPosition(target, duration, ease.ToProcedure());
         }
 
-        public static Tween TwScale(this RectTransform rectTransform, Vector3 target, float duration,
-            EaseProcedure ease)
+        public static Tween TwAnchoredPositionX(this RectTransform rectTransform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(rectTransform.anchoredPosition.x, target, duration, v => { var pos = rectTransform.anchoredPosition; pos.x = v; rectTransform.anchoredPosition = pos; },
+                ease, rectTransform);
+            return tween;
+        }
+
+        public static Tween TwAnchoredPositionX(this RectTransform rectTransform, float target, float duration, Ease ease)
+        {
+            return rectTransform.TwAnchoredPositionX(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwAnchoredPositionY(this RectTransform rectTransform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(rectTransform.anchoredPosition.y, target, duration, v => { var pos = rectTransform.anchoredPosition; pos.y = v; rectTransform.anchoredPosition = pos; },
+                ease, rectTransform);
+            return tween;
+        }
+
+        public static Tween TwAnchoredPositionY(this RectTransform rectTransform, float target, float duration, Ease ease)
+        {
+            return rectTransform.TwAnchoredPositionY(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScale(this RectTransform rectTransform, Vector3 target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(rectTransform.localScale, target, duration, v => rectTransform.localScale = v,
                 ease, rectTransform);
@@ -72,6 +201,42 @@ namespace SimpleTweens
         public static Tween TwScale(this RectTransform rectTransform, Vector3 target, float duration, Ease ease)
         {
             return rectTransform.TwScale(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScaleX(this RectTransform rectTransform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(rectTransform.localScale.x, target, duration, v => { var s = rectTransform.localScale; s.x = v; rectTransform.localScale = s; },
+                ease, rectTransform);
+            return tween;
+        }
+
+        public static Tween TwScaleX(this RectTransform rectTransform, float target, float duration, Ease ease)
+        {
+            return rectTransform.TwScaleX(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScaleY(this RectTransform rectTransform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(rectTransform.localScale.y, target, duration, v => { var s = rectTransform.localScale; s.y = v; rectTransform.localScale = s; },
+                ease, rectTransform);
+            return tween;
+        }
+
+        public static Tween TwScaleY(this RectTransform rectTransform, float target, float duration, Ease ease)
+        {
+            return rectTransform.TwScaleY(target, duration, ease.ToProcedure());
+        }
+
+        public static Tween TwScaleZ(this RectTransform rectTransform, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(rectTransform.localScale.z, target, duration, v => { var s = rectTransform.localScale; s.z = v; rectTransform.localScale = s; },
+                ease, rectTransform);
+            return tween;
+        }
+
+        public static Tween TwScaleZ(this RectTransform rectTransform, float target, float duration, Ease ease)
+        {
+            return rectTransform.TwScaleZ(target, duration, ease.ToProcedure());
         }
 
         public static Tween TwPosition(this Rigidbody2D rigidbody, Vector2 target, float duration, EaseProcedure ease)
@@ -194,8 +359,7 @@ namespace SimpleTweens
             return camera.TwOrthographicSize(target, duration, ease.ToProcedure());
         }
 
-        public static Tween TwMaterialColor(this Material material, int hashID, Color target, float duration,
-            EaseProcedure ease)
+        public static Tween TwMaterialColor(this Material material, int hashID, Color target, float duration, EaseProcedure ease)
         {
             var tween = TweenManager.Instance.Run(material.GetColor(hashID), target, duration, v => material.SetColor(hashID, v),
                 ease, material);
@@ -217,6 +381,18 @@ namespace SimpleTweens
         public static Tween TwColor(this TextMeshProUGUI text, Color color, float duration, Ease ease)
         {
             return text.TwColor(color, duration, ease.ToProcedure());
+        }
+        
+        public static Tween TwColor(this TextMeshProUGUI text, TweenAnimationCurveData<Color> curveData)
+        {
+            return text.TwColor(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwColor(this TextMeshProUGUI text, TweenAnimationData<Color> animationData)
+        {
+            return text.TwColor(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
         public static Tween TwColor(this Image image, Color color, float duration, EaseProcedure ease)
@@ -296,17 +472,47 @@ namespace SimpleTweens
             return transform.TwPosition(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
                 .SetDelay(curveData.Delay);
         }
-        
-        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, float target, float duration, EaseProcedure ease)
+
+        public static Tween TwPosition(this Transform transform, TweenAnimationData<Vector3> animationData)
         {
-            var tween = TweenManager.Instance.Run(layoutGroup.spacing, target, duration, v => layoutGroup.spacing = v, ease,
-                layoutGroup);
-            return tween;
+            return transform.TwPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
-        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, float target, float duration, Ease ease)
+        public static Tween TwPositionX(this Transform transform, TweenAnimationCurveData<float> curveData)
         {
-            return layoutGroup.TwSpacing(target, duration, ease.ToProcedure());
+            return transform.TwPositionX(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwPositionX(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwPositionX(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwPositionY(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwPositionY(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwPositionY(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwPositionY(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwPositionZ(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwPositionZ(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwPositionZ(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwPositionZ(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
         }
 
         public static Tween TwLocalPosition(this Transform transform, TweenAnimationCurveData<Vector3> curveData)
@@ -315,15 +521,45 @@ namespace SimpleTweens
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwPosition(this Transform transform, TweenAnimationData<Vector3> animationData)
-        {
-            return transform.TwPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
-                .SetDelay(animationData.Delay);
-        }
-
         public static Tween TwLocalPosition(this Transform transform, TweenAnimationData<Vector3> animationData)
         {
             return transform.TwLocalPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwLocalPositionX(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwLocalPositionX(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwLocalPositionX(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwLocalPositionX(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwLocalPositionY(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwLocalPositionY(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwLocalPositionY(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwLocalPositionY(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwLocalPositionZ(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwLocalPositionZ(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwLocalPositionZ(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwLocalPositionZ(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
                 .SetDelay(animationData.Delay);
         }
 
@@ -339,16 +575,78 @@ namespace SimpleTweens
                 .SetDelay(animationData.Delay);
         }
 
+        public static Tween TwScaleX(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwScaleX(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleX(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwScaleX(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwScaleY(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwScaleY(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleY(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwScaleY(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwScaleZ(this Transform transform, TweenAnimationCurveData<float> curveData)
+        {
+            return transform.TwScaleZ(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleZ(this Transform transform, TweenAnimationData<float> animationData)
+        {
+            return transform.TwScaleZ(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
         public static Tween TwAnchoredPosition(this RectTransform rectTransform,
-            TweenAnimationCurveData<Vector3> curveData)
+            TweenAnimationCurveData<Vector2> curveData)
         {
             return rectTransform.TwAnchoredPosition(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwAnchoredPosition(this RectTransform rectTransform, TweenAnimationData<Vector3> animationData)
+        public static Tween TwAnchoredPosition(this RectTransform rectTransform, TweenAnimationData<Vector2> animationData)
         {
             return rectTransform.TwAnchoredPosition(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwAnchoredPositionX(this RectTransform rectTransform,
+            TweenAnimationCurveData<float> curveData)
+        {
+            return rectTransform.TwAnchoredPositionX(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwAnchoredPositionX(this RectTransform rectTransform, TweenAnimationData<float> animationData)
+        {
+            return rectTransform.TwAnchoredPositionX(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwAnchoredPositionY(this RectTransform rectTransform,
+            TweenAnimationCurveData<float> curveData)
+        {
+            return rectTransform.TwAnchoredPositionY(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwAnchoredPositionY(this RectTransform rectTransform, TweenAnimationData<float> animationData)
+        {
+            return rectTransform.TwAnchoredPositionY(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
                 .SetDelay(animationData.Delay);
         }
 
@@ -364,21 +662,67 @@ namespace SimpleTweens
                 .SetDelay(animationData.Delay);
         }
 
+        public static Tween TwScaleX(this RectTransform rectTransform, TweenAnimationCurveData<float> curveData)
+        {
+            return rectTransform.TwScaleX(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleX(this RectTransform rectTransform, TweenAnimationData<float> animationData)
+        {
+            return rectTransform.TwScaleX(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwScaleY(this RectTransform rectTransform, TweenAnimationCurveData<float> curveData)
+        {
+            return rectTransform.TwScaleY(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleY(this RectTransform rectTransform, TweenAnimationData<float> animationData)
+        {
+            return rectTransform.TwScaleY(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
+        public static Tween TwScaleZ(this RectTransform rectTransform, TweenAnimationCurveData<float> curveData)
+        {
+            return rectTransform.TwScaleZ(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
+                .SetDelay(curveData.Delay);
+        }
+
+        public static Tween TwScaleZ(this RectTransform rectTransform, TweenAnimationData<float> animationData)
+        {
+            return rectTransform.TwScaleZ(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
+                .SetDelay(animationData.Delay);
+        }
+
         public static Tween TwColor(this SpriteRenderer sprite, TweenAnimationData<Color> animationData)
         {
             return sprite.TwColor(animationData.Value, animationData.Duration, animationData.Ease.ToProcedure())
                 .SetDelay(animationData.Delay);
         }
         
-        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup,
-            TweenAnimationCurveData<float> curveData)
+        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, float target, float duration, EaseProcedure ease)
+        {
+            var tween = TweenManager.Instance.Run(layoutGroup.spacing, target, duration, v => layoutGroup.spacing = v, ease,
+                layoutGroup);
+            return tween;
+        }
+
+        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, float target, float duration, Ease ease)
+        {
+            return layoutGroup.TwSpacing(target, duration, ease.ToProcedure());
+        }
+        
+        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, TweenAnimationCurveData<float> curveData)
         {
             return layoutGroup.TwSpacing(curveData.Value, curveData.Duration, curveData.Curve.CustomEvaluate)
                 .SetDelay(curveData.Delay);
         }
 
-        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup,
-            TweenAnimationData<float> animationData)
+        public static Tween TwSpacing(this HorizontalOrVerticalLayoutGroup layoutGroup, TweenAnimationData<float> animationData)
         {
             return layoutGroup.TwSpacing(animationData.Value, animationData.Duration, animationData.Ease)
                 .SetDelay(animationData.Delay);

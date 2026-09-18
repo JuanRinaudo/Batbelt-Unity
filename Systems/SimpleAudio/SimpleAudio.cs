@@ -127,9 +127,12 @@ public class SimpleAudio : MonoBehaviour
         sfxSource.pitch = pitch;
         sfxSource.volume = sound.volume * volumeModifier;
         sfxSource.clip = clip;
-        sfxSource.Play();
-
-        _activeSFXSources.Add(sfxSource);
+        
+        if(sfxSource != null && sfxSource.enabled && sfxSource.gameObject.activeInHierarchy)
+        {
+            sfxSource.Play();
+            _activeSFXSources.Add(sfxSource);
+        }
     }
 
     public void PlayAudioClip(AudioClip clip, float volume = 1.0f, float pitch = 1.0f)
