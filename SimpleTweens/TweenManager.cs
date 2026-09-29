@@ -219,6 +219,15 @@ namespace SimpleTweens
 
             ctx.OnCancel += cancel;
         }
+        
+        internal void AddOnUpdate(Tween tween, Action<float> update)
+        {
+            var ctx = GetContext(tween);
+            if (ctx is null)
+                return;
+
+            ctx.Updater += update;
+        }
 
         internal void AddOnComplete(Tween tween, Action complete)
         {
@@ -238,6 +247,15 @@ namespace SimpleTweens
             ctx.OnStart += start;
         }
 
+        internal void AddOnLoop(Tween tween, Action start)
+        {
+            var ctx = GetContext(tween);
+            if (ctx is null)
+                return;
+
+            ctx.OnLoop += start;
+        }
+        
         internal void SetLoops(Tween tween, int loops, LoopType type)
         {
             var ctx = GetContext(tween);
@@ -354,6 +372,7 @@ namespace SimpleTweens
                 if(ctx.Progress >= ctx.Delay && !ctx.Started) {
                     ctx.Started = true;
                     ctx.OnStart?.Invoke();
+                    ctx.OnLoop?.Invoke();
                 }
                 
                 var lifetimeExpired = ctx.Lifetime != null && !ctx.Lifetime();
@@ -384,6 +403,8 @@ namespace SimpleTweens
                         _contextPool.Release(ctx);
                     }
                     else {
+                        ctx.OnLoop?.Invoke();
+                        
                         if(ctx.Loops > 0)
                             ctx.Loops--;
 

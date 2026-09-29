@@ -100,6 +100,13 @@ namespace SimpleTweens
             _tweenManager.AddOnCancel(this, cancel);
             return this;
         }
+        
+        public Tween AddOnUpdate(Action<float> update)
+        {
+            ThrowIfInvalid();
+            _tweenManager.AddOnUpdate(this, update);
+            return this;
+        }
 
         public Tween AddOnComplete(Action complete)
         {
@@ -112,6 +119,13 @@ namespace SimpleTweens
         {
             ThrowIfInvalid();
             _tweenManager.AddOnStart(this, start);
+            return this;
+        }
+        
+        public Tween AddOnLoop(Action loop)
+        {
+            ThrowIfInvalid();
+            _tweenManager.AddOnLoop(this, loop);
             return this;
         }
 

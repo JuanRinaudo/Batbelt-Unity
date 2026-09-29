@@ -2,6 +2,14 @@ using System;
 using SimpleTweens;
 
 [Serializable]
+public struct TweenAnimationData
+{
+    public float Duration;
+    public float Delay;
+    public Ease Ease;
+}
+
+[Serializable]
 public struct TweenAnimationData<T>
 {
     public float Duration;

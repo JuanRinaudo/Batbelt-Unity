@@ -39,6 +39,9 @@ public class SimpleAudio : MonoBehaviour
     const string MUSIC_GROUP_NAME = "Music";
     const string SFX_GROUP_NAME = "SFX";
 
+    const float MIN_DB = -80f;
+    const float MAX_DB = 0f;
+
 #if UNITY_EDITOR
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void Restart()
@@ -46,14 +49,16 @@ public class SimpleAudio : MonoBehaviour
         instance = null;
     }
 #endif
-    
-    public static SimpleAudio CreateAudioSingleton()
+
+    public static SimpleAudio CreateAudioSingleton(Transform parent = null)
     {
         Instantiate(Resources.Load<GameObject>(SIMPLE_INSTANCE_RESOURCE_PATH));
+        if (parent != null)
+            instance.transform.SetParent(parent);
         return instance;
     }
 
-    private void Awake()
+    void Awake()
     {
         if (instance != null)
         {
@@ -87,25 +92,47 @@ public class SimpleAudio : MonoBehaviour
             audioSource.clip = null;
         }, audioSource =>
         {
-            Destroy(audioSource.gameObject);
+            if (audioSource != null)
+                Destroy(audioSource.gameObject);
         }, false, 10, 100);
 
         instance = this;
         DontDestroyOnLoad(gameObject);
     }
 
-    public void PlaySoundBank(SoundBank sound, float volumeModifier = 1.0f)
+    public void PlaySoundBank(SoundBank sound, float volumeModifier, float pitch)
     {
         var clip = sound.GetRandomClip();
-        var pitch = sound.randomPitch ? sound.GetPitch() : sound.minPitch;
+        if (clip == null)
+            return;
 
         var sfxSource = _sfxPool.Get();
         sfxSource.pitch = pitch;
         sfxSource.volume = sound.volume * volumeModifier;
         sfxSource.clip = clip;
         sfxSource.Play();
-        
+
         _activeSFXSources.Add(sfxSource);
+    }
+
+    public void PlaySoundBank(SoundBank sound, float volumeModifier = 1.0f)
+    {
+        var clip = sound.GetRandomClip();
+        if (clip == null)
+            return;
+
+        var pitch = sound.randomPitch ? sound.GetPitch() : sound.minPitch;
+
+        var sfxSource = _sfxPool.Get();
+        sfxSource.pitch = pitch;
+        sfxSource.volume = sound.volume * volumeModifier;
+        sfxSource.clip = clip;
+        
+        if(sfxSource != null && sfxSource.enabled && sfxSource.gameObject.activeInHierarchy)
+        {
+            sfxSource.Play();
+            _activeSFXSources.Add(sfxSource);
+        }
     }
 
     public void PlayAudioClip(AudioClip clip, float volume = 1.0f, float pitch = 1.0f)
@@ -115,7 +142,7 @@ public class SimpleAudio : MonoBehaviour
         sfxSource.volume = volume;
         sfxSource.clip = clip;
         sfxSource.Play();
-        
+
         _activeSFXSources.Add(sfxSource);
     }
 
@@ -123,7 +150,7 @@ public class SimpleAudio : MonoBehaviour
     {
         _musicTween.TryCancel();
         _altMusicTween.TryCancel();
-            
+
         var currentSource = _altMusicPlaying ? altMusicSource : musicSource;
         var targetSource = _altMusicPlaying ? musicSource : altMusicSource;
 
@@ -138,20 +165,20 @@ public class SimpleAudio : MonoBehaviour
             }
             return;
         }
-        
+
         _altMusicPlaying = !_altMusicPlaying;
-        
+
         targetSource.loop = true;
         targetSource.clip = clip;
         targetSource.Play();
-        
+
         if (transitionDuration > 0f)
         {
             currentSource.TwVolume(0f, transitionDuration, Easer.Linear).AddOnComplete(() =>
             {
                 currentSource.Stop();
             });
-            
+
             targetSource.volume = 0f;
             targetSource.TwVolume(volume, transitionDuration, Easer.Linear);
         }
@@ -167,7 +194,7 @@ public class SimpleAudio : MonoBehaviour
         var audioSource = _altMusicPlaying ? altMusicSource : musicSource;
         _musicTween.TryCancel();
         _altMusicTween.TryCancel();
-        
+
         if (transitionDuration > 0f)
         {
             _musicTween = audioSource.TwVolume(0f, transitionDuration, Easer.Linear).AddOnComplete(() =>
@@ -180,7 +207,7 @@ public class SimpleAudio : MonoBehaviour
             audioSource.Stop();
         }
     }
-    
+
     public void SetMusicVolume(float volume = 1.0f, float duration = -1f)
     {
         var audioSource = _altMusicPlaying ? altMusicSource : musicSource;
@@ -197,12 +224,30 @@ public class SimpleAudio : MonoBehaviour
         return audioSource.clip;
     }
 
+    static float LinearToDb(float linearVolume)
+    {
+        linearVolume = Mathf.Clamp01(linearVolume);
+
+        if (linearVolume <= 0.0001f)
+            return MIN_DB;
+
+        return Mathf.Log10(linearVolume) * 20f;
+    }
+
+    static float DbToLinear(float dbVolume)
+    {
+        if (dbVolume <= MIN_DB)
+            return 0f;
+
+        return Mathf.Pow(10f, dbVolume / 20f);
+    }
+
     void InternalSetMasterVolume(float volume)
     {
-        if(!SoundEnabled || SoundMuted)
+        if (!SoundEnabled || SoundMuted)
             volume = 0;
 
-        mixer.SetFloat(MASTER_VOLUME_NAME, volume * 80f - 80f);
+        mixer.SetFloat(MASTER_VOLUME_NAME, LinearToDb(volume));
     }
 
     public void SetMixerMasterVolume(float volume)
@@ -214,30 +259,30 @@ public class SimpleAudio : MonoBehaviour
 
     public void SetMixerMusicVolume(float volume)
     {
-        mixer.SetFloat(MUSIC_VOLUME_NAME, volume * 80f - 80f);
+        mixer.SetFloat(MUSIC_VOLUME_NAME, LinearToDb(volume));
     }
 
     public void SetMixerSFXVolume(float volume)
     {
-        mixer.SetFloat(SFX_VOLUME_NAME, volume * 80f - 80f);
+        mixer.SetFloat(SFX_VOLUME_NAME, LinearToDb(volume));
     }
 
     public float GetMixerMasterVolume()
     {
         float volume;
-        return mixer.GetFloat(MASTER_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
+        return mixer.GetFloat(MASTER_VOLUME_NAME, out volume) ? DbToLinear(volume) : 0f;
     }
 
     public float GetMixerMusicVolume()
     {
         float volume;
-        return mixer.GetFloat(MUSIC_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
+        return mixer.GetFloat(MUSIC_VOLUME_NAME, out volume) ? DbToLinear(volume) : 0f;
     }
 
     public float GetMixerSFXVolume()
     {
         float volume;
-        return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? ((volume + 80f) / 80f) : 0;
+        return mixer.GetFloat(SFX_VOLUME_NAME, out volume) ? DbToLinear(volume) : 0f;
     }
 
     public bool ToggleMute()
@@ -252,7 +297,8 @@ public class SimpleAudio : MonoBehaviour
 
     public void MuteSound()
     {
-        if(!SoundMuted) {
+        if (!SoundMuted)
+        {
             SoundMuted = true;
             InternalSetMasterVolume(0);
         }
@@ -260,7 +306,8 @@ public class SimpleAudio : MonoBehaviour
 
     public void UnmuteSound()
     {
-        if(SoundMuted) {
+        if (SoundMuted)
+        {
             SoundMuted = false;
             InternalSetMasterVolume(_realMixerMasterVolume);
         }
@@ -278,16 +325,19 @@ public class SimpleAudio : MonoBehaviour
 
     public void EnableSound()
     {
-        if(!SoundEnabled) {
+        if (!SoundEnabled)
+        {
             SoundEnabled = true;
             InternalSetMasterVolume(_realMixerMasterVolume);
         }
     }
- 
+
     public void DisableSound()
     {
-        if(SoundEnabled) { 
+        if (SoundEnabled)
+        {
             SoundEnabled = false;
+            _realMixerMasterVolume = GetMixerMasterVolume();
             InternalSetMasterVolume(0);
         }
     }

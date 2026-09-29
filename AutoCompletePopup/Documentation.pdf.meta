@@ -1,11 +1,5 @@
 fileFormatVersion: 2
 guid: f154c8f3e9bfce84ab767db72715963e
-timeCreated: 1519564723
-licenseType: Store
-DefaultImporter:
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
 AssetOrigin:
   serializedVersion: 1
   productId: 112403
@@ -13,3 +7,8 @@ AssetOrigin:
   packageVersion: 3.0.6
   assetPath: Assets/Rotary Heart/AutoCompletePopup/Documentation.pdf
   uploadId: 655038
+DefaultImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

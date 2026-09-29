@@ -2,7 +2,6 @@ using UnityEngine;
 
 public class BatCore
 {
-    
     public static void Log(string message)
     {
 #if DEBUG_BUILD || UNITY_EDITOR

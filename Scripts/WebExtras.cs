@@ -9,5 +9,8 @@ public static class WebExtras
 
     [DllImport("__Internal")]
     public static extern void FilesystemSync();
+
+    [DllImport("__Internal")]
+    public static extern bool IsMobileBrowser();
 }
 #endif
