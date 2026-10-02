@@ -22,7 +22,6 @@ public class LocalizedTextField : VisualElement
         if (KeyProperty == null || KeyProperty.propertyType != SerializedPropertyType.String)
             return;
 
-        // Load options once
         if (TextKeyOptions == null || TextKeyOptions.Length == 0)
         {
             var keysTask = SimpleTranslations.GetTranslationKeys();
@@ -32,30 +31,43 @@ public class LocalizedTextField : VisualElement
 
         style.flexDirection = FlexDirection.Column;
         style.marginBottom = 6;
-
-        // Create input field
-        KeyField = new CustomAutoCompleteTextField(KeyProperty, TextKeyOptions, container, UpdateTranslationPreview);
         
-        // Preview label
+        style.overflow = Overflow.Visible;
+        style.height = StyleKeyword.Auto;
+        style.maxHeight = StyleKeyword.None;
+        style.flexShrink = 0;
+
+        KeyField = new CustomAutoCompleteTextField(KeyProperty, TextKeyOptions, container, UpdateTranslationPreview);
+
         TranslationPreview = new Label
         {
             style =
             {
                 maxWidth = 500,
-                marginTop = 4,
-                whiteSpace = WhiteSpace.Normal
+                marginTop = 0,
+                whiteSpace = WhiteSpace.Normal,
+                overflow = Overflow.Visible,
+                height = StyleKeyword.Auto,
+                maxHeight = StyleKeyword.None,
+                flexShrink = 0,
+                flexGrow = 0,
             }
         };
+
+        TranslationPreview.RegisterCallback<GeometryChangedEvent>(_ => RefreshLayoutChain(TranslationPreview));
 
         UpdateTranslationPreview(KeyField.Value);
 
         Add(KeyField);
         Add(TranslationPreview);
+
+        schedule.Execute(() => RefreshLayoutChain(TranslationPreview)).ExecuteLater(1);
     }
 
     void UpdateTranslationPreview(string key)
     {
         TranslationPreview.text = SimpleTranslations.SilentGetText(key);
+        RefreshLayoutChain(TranslationPreview);
     }
 
     public void ClearValue()
@@ -66,6 +78,35 @@ public class LocalizedTextField : VisualElement
     public void RegisterValueChangeCallback(Action callback)
     {
         KeyField.InputField.RegisterValueChangedCallback(_ => callback?.Invoke());
+    }
+
+    static void RefreshLayoutChain(VisualElement element)
+    {
+        var current = element.parent;
+        int safety = 0;
+
+        while (current != null && safety++ < 25)
+        {
+            current.style.overflow = Overflow.Visible;
+
+            if (current.style.height.keyword != StyleKeyword.Auto
+                && current.style.height.value.unit == LengthUnit.Pixel)
+            {
+                current.style.height = StyleKeyword.Auto;
+            }
+
+            current.style.maxHeight = StyleKeyword.None;
+
+            if (current.ClassListContains("node")
+                || current is UnityEditor.Experimental.GraphView.Node)
+            {
+                break;
+            }
+
+            current = current.parent;
+        }
+
+        element.MarkDirtyRepaint();
     }
 }
 
@@ -79,7 +120,7 @@ public class CustomAutoCompleteTextField : VisualElement
     public VisualElement DropdownContainer;
 
     public string Value => InputField.value;
-    
+
     bool _isFocused = false;
 
     public CustomAutoCompleteTextField(SerializedProperty property, string[] options, VisualElement container, Action<string> onValueChange, string label = "Key")
@@ -106,12 +147,12 @@ public class CustomAutoCompleteTextField : VisualElement
         {
             OnKeyDown(e);
         });
-        
+
         InputField.RegisterValueChangedCallback(evt =>
         {
             if (_isFocused)
                 FilterOptions(evt.newValue);
-        
+
             onValueChange(evt.newValue);
         });
 
@@ -135,9 +176,9 @@ public class CustomAutoCompleteTextField : VisualElement
                 overflow = Overflow.Visible,
             }
         };
-        
+
         var styleAsset = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/SimpleVN/StoryGraph/CustomEditors/Styles/NodeEditorStyle.uss");
-        DropdownContainer.styleSheets.Add(styleAsset); 
+        DropdownContainer.styleSheets.Add(styleAsset);
 
         Font font = (Font)Resources.GetBuiltinResource(typeof(Font), "LegacyRuntime.ttf");
         DropdownContainer.style.unityFont = font;
@@ -153,7 +194,7 @@ public class CustomAutoCompleteTextField : VisualElement
                 flexGrow = 1,
                 backgroundColor = new Color(0.5f, 0.5f, 0.5f, 0.8f),
                 overflow = Overflow.Hidden,
-                
+
                 borderLeftWidth = 2,
                 borderRightWidth = 2,
                 borderTopWidth = 2,
@@ -169,7 +210,7 @@ public class CustomAutoCompleteTextField : VisualElement
                 borderBottomLeftRadius = 2,
                 borderBottomRightRadius = 2,
             },
-            makeItem = () => 
+            makeItem = () =>
             {
                 var label = new Label { };
                 return label;
@@ -189,7 +230,7 @@ public class CustomAutoCompleteTextField : VisualElement
                 HideDropdown();
             }
         };
-        
+
         RegisterCallback<AttachToPanelEvent>(evt =>
         {
             evt.destinationPanel.visualTree.contentContainer.Add(DropdownContainer);
@@ -202,8 +243,8 @@ public class CustomAutoCompleteTextField : VisualElement
         {
             DropdownContainer.RemoveFromHierarchy();
         });
-        
-        DropdownList.RegisterCallback<AttachToPanelEvent>(evt => 
+
+        DropdownList.RegisterCallback<AttachToPanelEvent>(evt =>
         {
             var scroller = DropdownList.Q<Scroller>();
             if (scroller != null)
@@ -226,11 +267,11 @@ public class CustomAutoCompleteTextField : VisualElement
 
         DropdownList.itemsSource = filtered;
         if (filtered.Length > 0)
-        { 
+        {
             float itemHeight = DropdownList.fixedItemHeight;
-            float totalHeight = Math.Min(filtered.Length * itemHeight, 250); 
+            float totalHeight = Math.Min(filtered.Length * itemHeight, 250);
             DropdownContainer.style.height = totalHeight;
-            
+
             var worldBound = InputField.worldBound;
             DropdownContainer.style.left = worldBound.x;
             DropdownContainer.style.top = worldBound.yMax;

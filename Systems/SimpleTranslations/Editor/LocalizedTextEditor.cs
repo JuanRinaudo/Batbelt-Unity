@@ -1,13 +1,8 @@
 ﻿#if UNITY_EDITOR
-using System;
-using System.Linq;
 using UnityEngine;
 using UnityEditor;
 using RotaryHeart.Lib.AutoComplete;
 using UnityEngine.UIElements;
-using DisplayStyle = UnityEngine.UIElements.DisplayStyle;
-using KeyCode = UnityEngine.KeyCode;
-using KeyDownEvent = UnityEngine.UIElements.KeyDownEvent;
 
 [CustomPropertyDrawer(typeof(LocalizedText))]
 public class LocalizedTextEditor : PropertyDrawer
