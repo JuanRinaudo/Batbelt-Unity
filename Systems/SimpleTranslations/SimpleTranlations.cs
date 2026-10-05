@@ -28,9 +28,9 @@ public class SimpleTranslations
         }
     }
 
-    [HideInInspector] public string[] languages;
-    [HideInInspector] public string currentLanguage;
-    [HideInInspector] public int currentLanguageIndex;
+    public string[] languages;
+    public string currentLanguage;
+    public int currentLanguageIndex;
     private Dictionary<string, int> languageColumn = new Dictionary<string, int>();
     private Dictionary<string, string> languageValues = new Dictionary<string, string>();
     
