@@ -20,8 +20,17 @@ public partial class Configs : MonoBehaviour
 
     [Header("Platform")]
     public WebPlatformConfigData WebPlatformConfig;
+#if UNITY_WEBGL
+    public static WebPlatformConfigData Web => Instance != null ? Instance.WebPlatformConfig : null;
+#endif
     public AndroidPlatformConfigData AndroidPlatformConfig;
+#if UNITY_ANDROID
+    public static AndroidPlatformConfigData Android => Instance != null ? Instance.AndroidPlatformConfig : null;
+#endif
     public DesktopPlatformConfigData DesktopPlatformConfig;
+#if UNITY_STANDALONE
+    public static DesktopPlatformConfigData Desktop => Instance != null ? Instance.DesktopPlatformConfig : null;
+#endif
 
     public static PlatformConfigData Platform
     {
