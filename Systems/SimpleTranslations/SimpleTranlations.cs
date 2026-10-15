@@ -89,11 +89,10 @@ public class SimpleTranslations
         {
             string[] lines = translationText.Split('\n');
             languages = lines[0].Trim(charsToTrim).Split('\t');
-            currentLanguageIndex = Array.IndexOf(languages, currentLanguage);
-            
+
             for (int column = 0; column < languages.Length; ++column)
             {
-                languageColumn.Add(languages[column], column);
+                languageColumn[languages[column]] = column;
             }
 
             if (!languageColumn.ContainsKey(currentLanguage))
@@ -102,12 +101,22 @@ public class SimpleTranslations
                 currentLanguage = defaultLanguage;
             }
 
-            int languageIndex = languageColumn[currentLanguage];
-        
-            for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+            currentLanguageIndex = Array.IndexOf(languages, currentLanguage);
+
+            if (languageColumn.TryGetValue(currentLanguage, out int languageIndex))
             {
-                string[] lineValues = lines[lineIndex].Split('\t');
-                languageValues.Add(lineValues[0], lineValues[languageIndex].Trim(charsToTrim));
+                for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[lineIndex]))
+                        continue;
+
+                    string[] lineValues = lines[lineIndex].Split('\t');
+                    languageValues[lineValues[0].Trim(charsToTrim)] = languageIndex < lineValues.Length ? lineValues[languageIndex].Trim(charsToTrim) : string.Empty;
+                }
+            }
+            else
+            {
+                Debug.LogError("Default language " + defaultLanguage + " not found in translations file");
             }
         }
 
@@ -197,24 +206,12 @@ public class SimpleTranslations
         try
         {
 #if UNITY_EDITOR
-            SimpleTranslationsEditorConfig configEditor;
-            if (BatUtils.LoadConfig(out configEditor, false))
+            var filePath = GetEditorTranslationsPath(config);
+            if (filePath != null)
             {
                 try
                 {
-                    var targetFilename = config.filename;
-
-                    var folderPath = "";
-                    if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
-                        folderPath = "Assets/Batbelt/Resources/Batbelt/";
-                    else if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
-                        folderPath = "Assets/VNGame/Addressables/";
-                    else
-                        folderPath = configEditor.downloadFileFolder;
-
-                    StreamReader reader = new StreamReader($"{folderPath}{targetFilename}");
-                    translationText = reader.ReadToEnd();
-                    reader.Close();
+                    translationText = File.ReadAllText(filePath);
                 }
                 catch
                 {
@@ -336,19 +333,66 @@ public class SimpleTranslations
     }
 
 #if UNITY_EDITOR
+    static string[] _cachedKeys;
+    static string _cachedKeysPath;
+    static DateTime _cachedKeysWriteTime;
+
+    static string GetEditorTranslationsPath(SimpleTranslationsConfig config)
+    {
+        if (!BatUtils.LoadConfig(out SimpleTranslationsEditorConfig configEditor, false))
+            return null;
+
+        string folderPath;
+        if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Resources)
+            folderPath = "Assets/Batbelt/Resources/Batbelt/";
+        else if (config.fileMethod == SimpleTranslationsConfig.FileMethod.Addressables)
+            folderPath = "Assets/VNGame/Addressables/";
+        else
+            folderPath = configEditor.downloadFileFolder;
+
+        return $"{folderPath}{config.filename}";
+    }
+
+    static string GetCurrentEditorTranslationsPath()
+    {
+        SimpleTranslationsConfig config;
+        if (EditorApplication.isPlaying)
+            config = Instance.config;
+        else if (!BatUtils.LoadConfig(out config, true))
+            return null;
+
+        return GetEditorTranslationsPath(config);
+    }
+
     public static async Task<string[]> GetTranslationKeys()
     {
+        string path = GetCurrentEditorTranslationsPath();
+        bool fileExists = path != null && File.Exists(path);
+        if (fileExists && _cachedKeys != null && _cachedKeysPath == path && _cachedKeysWriteTime == File.GetLastWriteTimeUtc(path))
+            return _cachedKeys;
+
         List<string> keys = new List<string>();
         string translationText = await GetTranslationsFile();
         string[] lines = translationText.Split('\n');
 
         for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
         {
-            string[] currentLine = lines[lineIndex].Trim(charsToTrim).Split('\t');
-            keys.Add(currentLine[0]);
+            string line = lines[lineIndex].Trim(charsToTrim);
+            if (line.Length == 0)
+                continue;
+
+            keys.Add(line.Split('\t')[0]);
         }
 
-        return keys.ToArray();
+        var result = keys.ToArray();
+        if (fileExists)
+        {
+            _cachedKeys = result;
+            _cachedKeysPath = path;
+            _cachedKeysWriteTime = File.GetLastWriteTimeUtc(path);
+        }
+
+        return result;
     }
 #endif
 }

@@ -21,7 +21,7 @@ public class LocalizedTextEditor : PropertyDrawer
         var keyProperty = property.FindPropertyRelative("Key");
         var container = new VisualElement();
 
-        var previewLabel = new Label(SimpleTranslations.GetText(keyProperty.stringValue));
+        var previewLabel = new Label(SimpleTranslations.SilentGetText(keyProperty.stringValue));
         previewLabel.style.color = new Color(0.7f, 0.7f, 0.7f);
 
         var keyField = new CustomAutoCompleteTextField(
@@ -32,7 +32,7 @@ public class LocalizedTextEditor : PropertyDrawer
                 var freshProperty = property.FindPropertyRelative("Key");
                 freshProperty.stringValue = newValue;
                 freshProperty.serializedObject.ApplyModifiedProperties();
-                previewLabel.text = SimpleTranslations.GetText(newValue);
+                previewLabel.text = SimpleTranslations.SilentGetText(newValue);
                 EditorUtility.SetDirty(property.serializedObject.targetObject);
             },
             property.name
@@ -73,7 +73,7 @@ public class LocalizedTextEditor : PropertyDrawer
         keyProperty.stringValue = AutoCompleteTextField.EditorGUI.AutoCompleteTextField(position, "", keyProperty.stringValue, _textKeyOptions, true);
         
         position.y += EditorGUIUtility.singleLineHeight;
-        EditorGUI.LabelField(position, SimpleTranslations.GetText(keyProperty.stringValue));
+        EditorGUI.LabelField(position, SimpleTranslations.SilentGetText(keyProperty.stringValue));
         GUI.backgroundColor = Color.white;
         
         if (EditorGUI.EndChangeCheck())
