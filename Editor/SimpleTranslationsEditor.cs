@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEditor;
@@ -14,11 +15,21 @@ public class SimpleTranslationsEditor : EditorWindow
     private static SimpleTranslationsEditorConfig editorConfig;
 
     public bool viewTexts;
+    public bool viewStats;
+    public bool viewWarnings = true;
     public int selectedLanguage;
 
     string _validationMessage;
+    string _warningsMessage;
+    int _warningsCount;
+
+    string _analyzedTranslationText;
+    int[] _languageWordCounts;
     
     private static Vector2 textsScrollPosition = new Vector2();
+    private static Vector2 warningsScrollPosition = new Vector2();
+    private static readonly Regex richTextTagRegex = new Regex("<[^>]*>");
+    private static readonly char[] wordSeparators = { ' ', '\t', '\r', '\n' };
     private static WebClient downloadClient;
 
     [MenuItem("Batbelt/Translation/Editor")]
@@ -58,6 +69,11 @@ public class SimpleTranslationsEditor : EditorWindow
                         string[] lineValues = lines[lineIndex].Split('\t');
                         values.Add(lineValues[0], lineValues[selectedLanguage]);
                     }
+
+                    if (translationText != _analyzedTranslationText)
+                    {
+                        AnalyzeTranslations(translationText, languages, lines);
+                    }
                 }
             }
         }
@@ -89,6 +105,23 @@ public class SimpleTranslationsEditor : EditorWindow
                 }
 
                 EditorGUILayout.EndScrollView();
+            }
+
+            viewStats = EditorGUILayout.Foldout(viewStats, "View Stats");
+            if(viewStats && _languageWordCounts != null)
+            {
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+                // Column 0 holds the keys, languages start at column 1
+                for (int languageIndex = 1; languageIndex < languages.Length; ++languageIndex)
+                {
+                    if (languages[languageIndex] == "")
+                        continue;
+
+                    EditorGUILayout.LabelField(languages[languageIndex], $"{_languageWordCounts[languageIndex]} words");
+                }
+
+                EditorGUILayout.EndVertical();
             }
         }
         else
@@ -156,6 +189,50 @@ public class SimpleTranslationsEditor : EditorWindow
         }
         
         GUI.enabled = true;
+
+        if(!string.IsNullOrEmpty(_warningsMessage))
+        {
+            viewWarnings = EditorGUILayout.Foldout(viewWarnings, $"Warnings ({_warningsCount})");
+            if(viewWarnings)
+            {
+                warningsScrollPosition = EditorGUILayout.BeginScrollView(warningsScrollPosition, GUILayout.MaxHeight(200));
+                EditorGUILayout.HelpBox(_warningsMessage, MessageType.Warning);
+                EditorGUILayout.EndScrollView();
+            }
+        }
+    }
+
+    private void AnalyzeTranslations(string translationText, string[] languages, string[] lines)
+    {
+        _analyzedTranslationText = translationText;
+
+        var warnings = SimpleTranslations.GetLineBreakWarnings(translationText);
+        SetWarnings(warnings.Count, string.Join("\n", warnings));
+
+        _languageWordCounts = new int[languages.Length];
+        for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+        {
+            string[] lineValues = lines[lineIndex].Split('\t');
+            if (lineValues[0].Trim(SimpleTranslations.charsToTrim) == "")
+                continue;
+
+            for (int column = 1; column < lineValues.Length && column < languages.Length; ++column)
+            {
+                _languageWordCounts[column] += CountWords(lineValues[column]);
+            }
+        }
+    }
+
+    private void SetWarnings(int warningsCount, string warningsMessage)
+    {
+        _warningsCount = warningsCount;
+        _warningsMessage = warningsMessage;
+    }
+
+    private static int CountWords(string value)
+    {
+        string text = richTextTagRegex.Replace(value.Replace("\\n", " "), " ");
+        return text.Split(wordSeparators, System.StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     private void DownloadFile()
@@ -212,7 +289,8 @@ public class SimpleTranslationsEditor : EditorWindow
                     Debug.Log("Download completed");
 
                     downloadClient = null;
-                    var validated = SimpleTranslations.Instance.ValidateTranslationsFile(newFilepath, out _validationMessage);
+                    var validated = SimpleTranslations.Instance.ValidateTranslationsFile(newFilepath, out _validationMessage, out var warningsMessage);
+                    SetWarnings(string.IsNullOrEmpty(warningsMessage) ? 0 : warningsMessage.Split('\n').Length, warningsMessage);
                     if (validated)
                     {
                         if (File.Exists(filepath))

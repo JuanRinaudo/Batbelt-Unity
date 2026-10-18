@@ -286,6 +286,11 @@ public class SimpleTranslations
 
     public bool ValidateTranslationsFile(string filepath, out string message)
     {
+        return ValidateTranslationsFile(filepath, out message, out _);
+    }
+
+    public bool ValidateTranslationsFile(string filepath, out string message, out string warningsMessage)
+    {
         StreamReader reader = new StreamReader(filepath);
         var translationText = reader.ReadToEnd();
         reader.Close();
@@ -316,7 +321,69 @@ public class SimpleTranslations
         else
             message = "No issues found in translations file";
 
+        warningsMessage = string.Join("\n", GetLineBreakWarnings(translationText));
+
         return issuesCount == 0;
+    }
+
+    // Checks that every non empty translation of a key has the same amount of line breaks (\n) across languages
+    public static List<string> GetLineBreakWarnings(string translationText)
+    {
+        var warnings = new List<string>();
+        if (string.IsNullOrEmpty(translationText))
+            return warnings;
+
+        string[] lines = translationText.Split('\n');
+        string[] languages = lines[0].Trim(charsToTrim).Split('\t');
+
+        StringBuilder countsBuilder = new StringBuilder();
+        for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
+        {
+            string[] lineValues = lines[lineIndex].Split('\t');
+            string key = lineValues[0].Trim(charsToTrim);
+            if (key == "")
+                continue;
+
+            int expectedLineBreaks = -1;
+            bool mismatch = false;
+            countsBuilder.Clear();
+
+            for (int column = 1; column < lineValues.Length; ++column)
+            {
+                string value = lineValues[column].Trim(charsToTrim);
+                if (value == "")
+                    continue;
+
+                int lineBreaks = CountLineBreaks(value);
+                if (expectedLineBreaks == -1)
+                    expectedLineBreaks = lineBreaks;
+                else if (expectedLineBreaks != lineBreaks)
+                    mismatch = true;
+
+                string language = column < languages.Length ? languages[column] : $"column {column}";
+                if (countsBuilder.Length > 0)
+                    countsBuilder.Append(", ");
+                countsBuilder.Append($"{language}: {lineBreaks}");
+            }
+
+            if (mismatch)
+                warnings.Add($"Warning {key} has different line breaks on line {lineIndex} ({countsBuilder})");
+        }
+
+        return warnings;
+    }
+
+    public static int CountLineBreaks(string value)
+    {
+        int count = 0;
+        int index = value.IndexOf("\\n", StringComparison.Ordinal);
+        while (index != -1)
+        {
+            count++;
+            index = value.IndexOf("\\n", index + 2, StringComparison.Ordinal);
+        }
+
+        return count;
     }
 
     static string TryGetFallbackText()
