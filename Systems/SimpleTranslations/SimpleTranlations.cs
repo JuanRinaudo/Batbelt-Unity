@@ -33,6 +33,7 @@ public class SimpleTranslations
     public int currentLanguageIndex;
     private Dictionary<string, int> languageColumn = new Dictionary<string, int>();
     private Dictionary<string, string> languageValues = new Dictionary<string, string>();
+    private Dictionary<string, string[]> allLanguageValues = new Dictionary<string, string[]>();
     
     public bool LoadFailed = false;
 
@@ -83,13 +84,13 @@ public class SimpleTranslations
 
         languageColumn.Clear();
         languageValues.Clear();
+        allLanguageValues.Clear();
         string translationText = await GetTranslationsFile();
 
         if(translationText != null && translationText != "")
         {
             string[] lines = translationText.Split('\n');
             languages = lines[0].Trim(charsToTrim).Split('\t');
-            currentLanguageIndex = Array.IndexOf(languages, currentLanguage);
             
             for (int column = 0; column < languages.Length; ++column)
             {
@@ -103,11 +104,16 @@ public class SimpleTranslations
             }
 
             int languageIndex = languageColumn[currentLanguage];
+            currentLanguageIndex = languageIndex;
         
             for (int lineIndex = 1; lineIndex < lines.Length; ++lineIndex)
             {
+                if (string.IsNullOrWhiteSpace(lines[lineIndex]))
+                    continue;
+
                 string[] lineValues = lines[lineIndex].Split('\t');
                 languageValues.Add(lineValues[0], lineValues[languageIndex].Trim(charsToTrim));
+                allLanguageValues.Add(lineValues[0], lineValues);
             }
         }
 
@@ -140,6 +146,19 @@ public class SimpleTranslations
             Debug.LogWarning($"Translation key not found: {key}");
             return null;
         }
+    }
+
+    public string GetValue(string key, string language)
+    {
+        if (key != null && language != null &&
+            allLanguageValues.TryGetValue(key, out var values) &&
+            languageColumn.TryGetValue(language, out var column) && column < values.Length)
+        {
+            return values[column].Trim(charsToTrim).Replace("\\n", "\n");
+        }
+
+        Debug.LogWarning($"Translation key not found: {key} ({language})");
+        return null;
     }
 
     public static T GetResource<T>(string key) where T : UnityEngine.Object
