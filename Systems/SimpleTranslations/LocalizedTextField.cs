@@ -123,7 +123,7 @@ public class CustomAutoCompleteTextField : VisualElement
 
     bool _isFocused = false;
 
-    public CustomAutoCompleteTextField(SerializedProperty property, string[] options, VisualElement container, Action<string> onValueChange, string label = "Key")
+    public CustomAutoCompleteTextField(SerializedProperty property, string[] options, VisualElement container, Action<string> onValueChange, string label = "Key", bool openOnFocus = false, Func<string, string> optionLabel = null)
     {
         BoundProperty = property;
         AllOptions = options;
@@ -137,6 +137,8 @@ public class CustomAutoCompleteTextField : VisualElement
         InputField.RegisterCallback<FocusInEvent>(_ =>
         {
             _isFocused = true;
+            if (openOnFocus)
+                FilterOptions(string.Empty);
         });
         InputField.RegisterCallback<FocusOutEvent>(_ =>
         {
@@ -217,7 +219,7 @@ public class CustomAutoCompleteTextField : VisualElement
             },
             bindItem = (e, i) =>
             {
-                (e as Label).text = filtered[i];
+                (e as Label).text = optionLabel != null ? optionLabel(filtered[i]) : filtered[i];
             }
         };
 

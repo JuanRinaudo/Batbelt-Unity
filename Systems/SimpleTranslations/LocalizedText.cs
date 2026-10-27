@@ -4,7 +4,7 @@
 public class LocalizedText
 {
     public string Key;
-    public string Value => SimpleTranslations.Instance.GetValue(Key);
+    public string Value => string.IsNullOrEmpty(Key) ? null : SimpleTranslations.Instance.GetValue(Key);
     
     public static implicit operator string(LocalizedText localizedText)
     {
@@ -13,6 +13,6 @@ public class LocalizedText
 
     public override string ToString()
     {
-        return Value;
+        return Value ?? string.Empty;
     }
 }
